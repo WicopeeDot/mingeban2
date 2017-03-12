@@ -4,7 +4,8 @@ The administration tool used on the Re-Dream server, and the second attempt at m
 
 # What's to come
 
-An in-game panel to work with commands, to be easily added, and the whole addon.
+An in-game panel to work with commands, and the whole addon.
+Easily implementable commands.
+Scoreboard interactivity.
+Context menu options to interact with players.
 Rank system with levels and special root modes.
-
-God damn I've been raping this repo. This should nail it.
