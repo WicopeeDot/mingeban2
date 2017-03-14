@@ -11,11 +11,13 @@ function mingeban:GetRank(name)
 
 end
 
+--[[ useless, this is default
+
 local PLAYER = FindMetaTable("Player")
 
 function PLAYER:GetUserGroup()
-	local group = self:GetNWString("UserGroup")
-	group = group == "" and "user" or group
-	return group
+	return self:GetNWString("UserGroup", "user")
 end
+
+]]
 
