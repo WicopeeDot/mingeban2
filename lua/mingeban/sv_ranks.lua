@@ -10,6 +10,8 @@ function Rank:SetLevel(level)
 	mingeban.ranks[self.level] = nil
 	self.level = level
 	mingeban.ranks[level] = self
+
+	mingeban:SaveRanks()
 	return self
 end
 function Rank:SetName(name)
@@ -17,10 +19,14 @@ function Rank:SetName(name)
 	assert(not istable(mingeban:GetRank(name)), "rank with name " .. name .. " already exists!")
 
 	self.name = name
+
+	mingeban:SaveRanks()
 	return self
 end
 function Rank:SetRoot(root)
 	self.root = root
+
+	mingeban:SaveRanks()
 	return self
 end
 function Rank:AddUser(sid)
@@ -41,6 +47,7 @@ function Rank:AddUser(sid)
 	end
 	mingeban.users[self.name][sid] = true
 
+	mingeban:SaveUsers()
 	return self
 
 end
@@ -56,6 +63,7 @@ function Rank:RemoveUser(sid)
 	end
 	mingeban.users[self.name][sid] = nil
 
+	mingeban:SaveUsers()
 	return self
 
 end
@@ -74,6 +82,17 @@ function Rank:GetUser(sid)
 	end
 
 end
+function Rank:GetUsers()
+	return mingeban.users[self.name]
+end
+local function getBasicKey(keyName, key)
+	Rank["Get" .. keyName] = function(self)
+		return self[key]
+	end
+end
+getBasicKey("Name", "name")
+getBasicKey("Level", "level")
+getBasicKey("Root", "root")
 
 function mingeban:CreateRank(name, level, root)
 	checkParam(name, "string", 1, "CreateRank")
@@ -92,6 +111,24 @@ function mingeban:CreateRank(name, level, root)
 	return rank
 
 end
+function mingeban:DeleteRank(name)
+	checkParam(name, "string", 1, "CreateRank")
+
+	assert(istable(mingeban:GetRank(name)), "rank with name " .. name .. " doesn't exist!")
+
+	for level, rank in next, self.ranks do
+		if rank:GetName() == name:lower() then
+			for sid, _ in next, rank:GetUsers() do
+				local ply = player.GetBySteamID(sid)
+				if IsValid(ply) then
+					ply:SetNWString("UserGroup", "user")
+				end
+			end
+			self.ranks[level] = nil
+			break
+		end
+	end
+end
 
 function mingeban:InitializeRanks()
 	local ranks = util.JSONToTable(file.Read("mingeban/ranks.txt", "DATA") or "{}")
@@ -105,11 +142,12 @@ function mingeban:InitializeRanks()
 		mingeban:CreateRank("user", 1, false)
 
 		self:SaveRanks()
+		self:SaveUsers()
 
 	end
 
 	for group, plys in next, self.users do
-		for sid, _ in next, self.users do
+		for sid, _ in next, plys do
 			local ply = player.GetBySteamID(sid)
 			if IsValid(ply) then
 				ply:SetNWString("UserGroup", group)
@@ -124,6 +162,13 @@ function mingeban:SaveRanks()
 		file.CreateDir("mingeban")
 	end
 	file.Write("mingeban/ranks.txt", util.TableToJSON(self.ranks))
+
+end
+
+function mingeban:SaveUsers()
+	if not file.Exists("mingeban", "DATA") then
+		file.CreateDir("mingeban")
+	end
 	local users = table.Copy(self.users)
 	users.user = nil
 	file.Write("mingeban/users.txt", util.TableToJSON(users))

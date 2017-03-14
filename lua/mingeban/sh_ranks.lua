@@ -11,9 +11,21 @@ function mingeban:GetRank(name)
 
 end
 
---[[ useless, this is default
-
 local PLAYER = FindMetaTable("Player")
+
+function PLAYER:CheckUserGroupLevel(name)
+	local rank = mingeban:GetRank(name)
+	if not rank then
+		return true
+	end
+	if rank:GetLevel() <= mingeban:GetRank(self:GetUserGroup()):GetLevel() then
+		return true
+	else
+		return false
+	end
+end
+
+--[[ useless, this is default
 
 function PLAYER:GetUserGroup()
 	return self:GetNWString("UserGroup", "user")
