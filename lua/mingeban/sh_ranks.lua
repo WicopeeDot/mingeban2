@@ -24,6 +24,9 @@ function PLAYER:CheckUserGroupLevel(name)
 		return false
 	end
 end
+function PLAYER:IsUserGroup(name)
+	return self:GetUserGroup() == name:lower()
+end
 
 --[[ useless, this is default
 
