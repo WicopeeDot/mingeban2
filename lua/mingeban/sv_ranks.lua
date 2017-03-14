@@ -79,7 +79,7 @@ function Rank:GetUser(sid)
 		if not IsValid(ply) then
 			ply = true
 		end
-		return mingeban.users[self.name][sid] and ply or false
+		return mingeban.users[self.name][sid] and ply or nil
 	end
 
 end
@@ -139,7 +139,7 @@ function mingeban:InitializeRanks()
 	self.users = util.JSONToTable(file.Read("mingeban/users.txt", "DATA") or "{}")
 
 	if table.Count(self.ranks) < 1 then
-		mingeban:CreateRank("superadmin", 255, true):AddUser(easylua.FindEntity("tenrys"):SteamID())
+		mingeban:CreateRank("superadmin", 255, true) -- :AddUser(easylua.FindEntity("tenrys"):SteamID())
 		mingeban:CreateRank("user", 1, false)
 
 		self:SaveRanks()
