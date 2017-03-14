@@ -1,7 +1,7 @@
 
 mingeban.commands = {}
 
-mingeban.CmdPrefix = "[,]"
+mingeban.CmdPrefix = "[%$]"
 mingeban.CmdArgGrouper = "[\"']"
 -- mingeban.CmdArgSeparators = { [" "] = true, [","] = true }
 mingeban.CmdArgSeparators = "[%s,]"
@@ -27,7 +27,7 @@ function mingeban:ParseArgs(str) -- featuring no continues and better parsing th
 		end
 
 		if cont then
-			if c:match(self.CmdArgGrouper) then -- do we try to group
+			if ((arg ~= "" and grouping) or (arg == "" and not grouping)) and c:match(self.CmdArgGrouper) then -- do we try to group
 
 				if not before or before and not escaping then -- are we escaping or starting a command
 					grouping = not grouping -- toggle group mode
@@ -78,6 +78,11 @@ hook.Add("PlayerSay", "mingeban-commands", function(ply, txt)
 		local cmd = txt:Split(" ")
 		cmd = cmd[1]:sub(prefix:len() + 1):lower()
 		local args = txt:sub(prefix:len() + 1 + cmd:len() + 1)
+		local time = SysTime()
+		args = mingeban:ParseArgs(args)
+		print("it took " .. (tostring(SysTime() - time) * 1000) .. " milliseconds to run a command")
+		print("here is the command: \"" .. cmd .. "\"")
+		print("here are the args")
 		PrintTable(args)
 	end
 end)
