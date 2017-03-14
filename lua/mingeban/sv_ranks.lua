@@ -151,8 +151,8 @@ end
 
 hook.Add("PlayerInitialSpawn", "mingeban-ranks", function(ply)
 	ply:SetNWString("UserGroup", "user")
-	for group, plys in next, self.users do
-		for sid, _ in next, self.users do
+	for group, plys in next, mingeban.users do
+		for sid, _ in next, plys do
 			if ply:SteamID() == sid then
 				ply:SetNWString("UserGroup", group)
 				break

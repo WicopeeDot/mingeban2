@@ -1,4 +1,5 @@
 
+AddCSLuaFile("sh_utils.lua")
 AddCSLuaFile("sh_ranks.lua")
 AddCSLuaFile("cl_ranks.lua")
 include("sv_ranks.lua")
