@@ -32,7 +32,7 @@ function mingeban:ParseArgs(str) -- featuring no continues and better parsing th
 				if not before or before and not escaping then -- are we escaping or starting a command
 					grouping = not grouping -- toggle group mode
 					if arg ~= "" then
-						table.insert(ret, arg) -- finish the job, add arg to list
+						ret[#ret + 1] = arg -- finish the job, add arg to list
 						arg = "" -- reset arg
 					end
 					cont = false -- we toggled grouping mode
@@ -49,7 +49,7 @@ function mingeban:ParseArgs(str) -- featuring no continues and better parsing th
 						separator = c -- pick the current separator
 					end
 					if arg ~= "" then
-						table.insert(ret, arg) -- finish the job, add arg to list
+						ret[#ret + 1] = arg -- finish the job, add arg to list
 						arg = "" -- reset arg
 					end
 					cont = false -- let's get the next arg going
@@ -59,7 +59,7 @@ function mingeban:ParseArgs(str) -- featuring no continues and better parsing th
 				if cont then
 					arg = arg .. c -- go on with the arg
 					if not after then -- in case this is the end of the sentence, add last thing written
-						table.insert(ret, arg)
+						ret[#ret + 1] = arg
 					end
 				end
 
