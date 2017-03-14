@@ -53,6 +53,7 @@ function Rank:AddUser(sid)
 end
 function Rank:RemoveUser(sid)
 	if type(sid) == "Player" and not sid:IsBot() then
+		sid:SetNWString("UserGroup", "user")
 		sid = sid:SteamID()
 	end
 	checkParam(sid, "string", 1, "RemoveUser")
@@ -72,7 +73,7 @@ function Rank:GetUser(sid)
 		return mingeban.users[self.name][sid:SteamID()] and sid or false
 	else
 		checkParam(sid, "string", 1, "GetUser")
-		assert(sid:match("STEAM_0:%d:%d+"), "bad argument #1 to 'RemoveUser' (steamid expected, got something else)")
+		assert(sid:match("STEAM_0:%d:%d+"), "bad argument #1 to 'GetUser' (steamid expected, got something else)")
 
 		local ply = player.GetBySteamID(sid)
 		if not IsValid(ply) then
