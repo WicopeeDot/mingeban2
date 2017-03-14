@@ -1,7 +1,7 @@
 
 mingeban.commands = {}
 
-mingeban.CmdPrefix = "[%$]"
+mingeban.CmdPrefix = "^[%$]"
 mingeban.CmdArgGrouper = "[\"']"
 -- mingeban.CmdArgSeparators = { [" "] = true, [","] = true }
 mingeban.CmdArgSeparators = "[%s,]"
@@ -72,7 +72,7 @@ function mingeban:ParseArgs(str) -- featuring no continues and better parsing th
 end
 
 hook.Add("PlayerSay", "mingeban-commands", function(ply, txt)
-	local prefix = txt:sub(1, 1):match(mingeban.CmdPrefix)
+	local prefix = txt:match(mingeban.CmdPrefix)
 
 	if prefix then
 		local cmd = txt:Split(" ")
