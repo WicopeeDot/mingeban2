@@ -18,10 +18,10 @@ function PLAYER:CheckUserGroupLevel(name)
 	if not rank then
 		return true
 	end
-	if rank:GetLevel() <= mingeban:GetRank(self:GetUserGroup()):GetLevel() then
-		return true
-	else
+	if mingeban:GetRank(self:GetUserGroup()):GetLevel() < rank:GetLevel() then
 		return false
+	else
+		return true
 	end
 end
 function PLAYER:IsUserGroup(name)

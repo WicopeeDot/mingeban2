@@ -144,7 +144,6 @@ function mingeban:InitializeRanks()
 
 		self:SaveRanks()
 		self:SaveUsers()
-
 	end
 
 	for group, plys in next, self.users do
@@ -158,11 +157,15 @@ function mingeban:InitializeRanks()
 
 end
 
+util.AddNetworkString("mingeban-getranks")
+
 function mingeban:SaveRanks()
 	if not file.Exists("mingeban", "DATA") then
 		file.CreateDir("mingeban")
 	end
 	file.Write("mingeban/ranks.txt", util.TableToJSON(self.ranks))
+	net.Start("mingeban-getranks")
+	net.Broadcast()
 
 end
 
@@ -173,10 +176,10 @@ function mingeban:SaveUsers()
 	local users = table.Copy(self.users)
 	users.user = nil
 	file.Write("mingeban/users.txt", util.TableToJSON(users))
+	net.Start("mingeban-getranks")
+	net.Broadcast()
 
 end
-
-util.AddNetworkString("mingeban-getranks")
 
 net.Receive("mingeban-getranks", function(_, ply)
 	net.Start("mingeban-getranks")
@@ -197,6 +200,7 @@ end
 
 hook.Add("PlayerInitialSpawn", "mingeban-ranks", function(ply)
 	ply:SetNWString("UserGroup", "user")
+
 	for group, plys in next, mingeban.users do
 		for sid, _ in next, plys do
 			if ply:SteamID() == sid then

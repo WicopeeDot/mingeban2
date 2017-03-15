@@ -26,8 +26,19 @@ local function readonly(tbl, add)
 	return setmetatable({}, mt)
 
 end
+local function askRanks()
+	net.Start("mingeban-getranks")
+	net.SendToServer()
+end
+
 net.Receive("mingeban-getranks", function()
-	local ranks = net.ReadTable()
+	local ranks = pcall(function() net.ReadTable() end)
+
+	if not istable(ranks) then
+		askRanks()
+		return
+	end
+
 	local users = net.ReadTable()
 
 	for level, rank in next, ranks do
@@ -43,11 +54,6 @@ net.Receive("mingeban-getranks", function()
 	mingeban.users = users
 
 end)
-local function askRanks()
-	net.Start("mingeban-getranks")
-	net.SendToServer()
-
-end
 
 if istable(GAMEMODE) then
 	askRanks()
