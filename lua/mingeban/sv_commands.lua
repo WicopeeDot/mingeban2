@@ -1,89 +1,76 @@
 
-mingeban.commands = {}
-
--- for commands
-MINGEBAN_ARG_STRING = 0
-MINGEBAN_ARG_NUMBER = 1
-MINGEBAN_ARG_PLAYER = 2
-MINGEBAN_ARG_PLAYERS = 4
-MINGEBAN_ARG_BOOL = 8
-MINGEBAN_ARG_OPTIONAL = 16
-MINGEBAN_ARG_VARARGS = 32
-local types = {
-	[ MINGEBAN_ARG_STRING  ] = "string",
-	[ MINGEBAN_ARG_NUMBER  ] = "number",
-	[ MINGEBAN_ARG_PLAYER  ] = "player",
-	[ MINGEBAN_ARG_PLAYERS ] = "players",
-	[ MINGEBAN_ARG_BOOL	   ] = "bool",
-	[ MINGEBAN_ARG_VARARGS ] = "varargs"
-}
+-- initialize helper functions
 
 local checkParam = mingeban.utils.checkParam
+local accessorFunc = mingeban.utils.accessorFunc
+
+mingeban.commands = {} -- intialize commands table
+
+-- setup argument object
+
+ARGTYPE_STRING  = 1
+ARGTYPE_NUMBER  = 2
+ARGTYPE_BOOLEAN = 3
+ARGTYPE_PLAYER  = 4
+ARGTYPE_PLAYERS = 5
+ARGTYPE_VARARGS = 6
+local types = {
+	[ ARGTYPE_STRING  ] = "string",
+	[ ARGTYPE_NUMBER  ] = "number",
+	[ ARGTYPE_BOOLEAN ] = "boolean",
+	[ ARGTYPE_PLAYER  ] = "player",
+	[ ARGTYPE_PLAYERS ] = "players",
+	[ ARGTYPE_VARARGS ] = "varargs"
+}
+local Argument = {}
+Argument.__index = Argument
+accessorFunc(Argument, "Type", "type")
+accessorFunc(Argument, "Name", "name")
+accessorFunc(Argument, "Optional", "optional")
+accessorFunc(Argument, "Filter", "filter")
+
+-- setup command object, holds arguments
 
 local Command = {}
 Command.__index = Command
-local function accessorFunc(keyName, key)
-	Command["Set" .. keyName] = function(self, value)
-		self[key] = value
-		return self
-	end
-	Command["Get" .. keyName] = function(self)
-		return self[key]
-	end
+function Command:AddArgument(type)
+	local arg = setmetatable({
+		type = type,
+	}, Argument)
+	self.args[#self.args + 1] = arg
+	return arg
+
 end
-accessorFunc("Group", "group")
-accessorFunc("Arguments", "args")
-accessorFunc("Syntax", "syntax")
-accessorFunc("EndsWithVarargs", "varargs")
-local function registerCommand(name, callback, group)
-	if not isbool(varargs) then varargs = true end
+accessorFunc(Command, "Group", "group")
+
+-- command registering process
+
+local function registerCommand(name, callback)
 	mingeban.commands[name] = setmetatable({
 		callback = callback, -- caller, line, ...
-		group = group,
-		args = { MINGEBAN_ARG_VARARGS },
-		syntax = {},
-		endsWithVarargs = true
+		group = "user",
+		args = {},
 	}, Command)
 	return mingeban.commands[name]
 end
-function mingeban.CreateCommand(name, callback, group)
+function mingeban.CreateCommand(name, callback)
 	checkParam(callback, "function", 2, "CreateCommand")
-	checkParam(group, "string", 3, "CreateCommand")
 
 	if istable(name) then
 		local cmds = {}
 		for _, name in next, name do
-			cmds[#cmds + 1] = registerCommand(name, callback, group)
+			cmds[#cmds + 1] = registerCommand(name, callback)
 		end
 		return cmds
 	else
 		checkParam(name, "string", 1, "CreateCommand")
 
-		return registerCommand(name, callback, group)
-	end
-end
-
-function mingeban:GetCommandSyntax(name)
-	local cmd = self.commands[name]
-	if not cmd then return end
-
-	local str = name .. " syntax: "
-	for k, argType in next, cmd.args do
-		local optional = argType < MINGEBAN_ARG_OPTIONAL
-		local typ = argType % MINGEBAN_ARG_OPTIONAL
-		local brStart, brEnd
-		if optional then
-			brStart = "["
-			brEnd = "]"
-		else
-			brStart = "<"
-			brEnd = ">"
-		end
-		str = str .. brStart .. (cmd.syntax[k] and cmd.syntax[k] .. ":" or "") .. types[typ] .. brEnd .. " "
+		return registerCommand(name, callback)
 	end
 
-	return str
 end
+
+-- command handling
 
 util.AddNetworkString("mingeban-cmderror")
 
@@ -92,8 +79,29 @@ local function cmdError(ply, reason)
 		net.WriteString(reason)
 	net.Send(ply)
 end
-function mingeban:RunCommand(name, caller, line)
 
+function mingeban:GetCommandSyntax(name)
+	local cmd = self.commands[name]
+	if not cmd then return end
+
+	local str = name .. " syntax: "
+	for k, arg in next, cmd.args do
+		local brStart, brEnd
+		if arg.optional or arg.type == ARGTYPE_VARARGS then
+			brStart = "["
+			brEnd = "]"
+		else
+			brStart = "<"
+			brEnd = ">"
+		end
+		str = str .. brStart .. (arg.name and arg.name .. ":" or "") .. types[arg.type] .. brEnd .. " "
+	end
+
+	return str
+
+end
+
+function mingeban:RunCommand(name, caller, line)
 	local cmd = self.commands[name]
 	if not cmd then
 		cmdError(caller, "Unknown command.")
@@ -108,8 +116,8 @@ function mingeban:RunCommand(name, caller, line)
 	local args = self.utils.parseArgs(line)
 
 	local neededArgs = 0
-	for _, argType in next, cmd.args do
-		if argType < MINGEBAN_ARG_OPTIONAL then neededArgs = neededArgs + 1 end
+	for _, arg in next, cmd.args do
+		if not arg.optional and arg.type ~= ARGTYPE_VARARGS then neededArgs = neededArgs + 1 end
 	end
 
 	local syntax = mingeban:GetCommandSyntax(name)
@@ -118,40 +126,70 @@ function mingeban:RunCommand(name, caller, line)
 		return false
 	end
 
-	for k, _ in next, args do
-		local argType = cmd.args[k] and cmd.args[k] % MINGEBAN_ARG_OPTIONAL
-		local arg
-		if argType == MINGEBAN_ARG_NUMBER then
-			arg = tonumber(string.Trim(string.lower(args[k])))
-		elseif argType == MINGEBAN_ARG_BOOL then
-			arg = tobool(string.Trim(string.lower(args[k])))
-		elseif argType == MINGEBAN_ARG_PLAYER then
-			arg = mingeban.utils.findPlayers(args[k])[1]
-		elseif argType == MINGEBAN_ARG_PLAYERS then
-			arg = mingeban.utils.findPlayers(args[k])
-			if #arg <= 0 then
-				cmdError(caller, "No players found.")
+	for k, arg in next, args do
+		local argData = cmd.args[k] or (cmd.args[#cmd.args].type == ARGTYPE_VARARGS and cmd.args[#cmd.args] or nil)
+		if argData then
+			local funcArg = arg
+
+			if (argData.type == ARGTYPE_STRING or argData.type == ARGTYPE_VARARGS) and funcArg:Trim() == "" then
+				funcArg = nil
+
+			elseif argData.type == ARGTYPE_NUMBER then
+				funcArg = tonumber(arg:Trim():lower())
+
+			elseif argData.type == ARGTYPE_BOOLEAN then
+				funcArg = tobool(arg:Trim():lower())
+
+			elseif argData.type == ARGTYPE_PLAYER then
+				funcArg = mingeban.utils.findPlayers(arg)[1]
+
+			elseif argData.type == ARGTYPE_PLAYERS then
+				funcArg = mingeban.utils.findPlayers(arg)
+				if #arg <= 0 then
+					cmdError(caller, "No players found.")
+					return false
+				end
+			end
+
+			if argData.filter then
+				if istable(funcArg) then
+					local newArg = {}
+					for _, arg in next, funcArg do
+						if argData.filter(arg) then
+							newArg[#newArg] = arg
+						end
+					end
+					funcArg = newArg
+				else
+					local filterRet = argData.filter(caller, funcArg)
+					funcArg = filterRet and funcArg or nil
+				end
+			end
+
+			local endsWithVarargs = args[#args] == ARGTYPE_VARARGS
+			if funcArg == nil and not endsWithVarargs then
+				cmdError(caller, syntax)
 				return false
 			end
-		end
-		if arg == nil and not cmd.endsWithVarargs then
-			cmdError(caller, syntax)
-			return false
-		end
-		if arg ~= nil then
-			args[k] = arg
-		elseif cmd.endsWithVarargs then
-			args[k] = args[k]
+
+			if funcArg ~= nil then
+				args[k] = funcArg
+			elseif endsWithVarargs then
+				args[k] = args[k]
+			else
+				args[k] = nil
+			end
 		else
 			args[k] = nil
 		end
 	end
 
+	--[[ This should be handled by custom argument filters.
+
 	if type(caller) == "Player" then
 		for k, v in next, args do
 			if type(v) == "Player" then
-				local ply = v
-				if not caller:CheckUserGroupLevel(ply:GetUserGroup()) then
+				if not caller:CheckUserGroupLevel(v:GetUserGroup()) then
 					cmdError(caller, "Can't target this player.")
 					return false
 				end
@@ -166,42 +204,56 @@ function mingeban:RunCommand(name, caller, line)
 		end
 	end
 
+	]]
+
 	cmd.callback(caller, line, unpack(args))
 
 end
 
--- not real command
-mingeban.CreateCommand("ban", function(caller, line, ply, time, reason)
-	print(line)
-	print(ply, time, reason)
-end, "superadmin")
-	:SetArguments({ MINGEBAN_ARG_PLAYER, MINGEBAN_ARG_STRING, MINGEBAN_ARG_STRING + MINGEBAN_ARG_OPTIONAL })
-	:SetSyntax({ "target", "time", "reason" })
-	:SetEndsWithVarargs(false)
+-- load commands
+
+local testargsCmd = mingeban.CreateCommand("testargs", function(caller, line, ...)
+	print("Line: " .. line)
+	print("Arguments: ")
+	for k, v in next, { ... } do
+		print("\t", v, type(v))
+	end
+end):SetGroup("superadmin")
+
+testargsCmd:AddArgument(ARGTYPE_STRING)
+testargsCmd:AddArgument(ARGTYPE_NUMBER)
+testargsCmd:AddArgument(ARGTYPE_BOOLEAN)
+testargsCmd:AddArgument(ARGTYPE_PLAYER)
+testargsCmd:AddArgument(ARGTYPE_PLAYERS)
+testargsCmd:AddArgument(ARGTYPE_VARARGS)
+
+for _, file in next, (file.Find("mingeban/commands/*.lua", "LUA")) do
+	include("mingeban/commands/" .. file)
+end
+
+-- commands running by chat or console
+
+concommand.Add("mingeban", function(ply, _, cmd, args)
+	local cmd = cmd[1]
+	local args = args:sub(cmd:len() + 2):Trim()
+	mingeban:RunCommand(cmd, ply, args)
+
+end)
 
 hook.Add("PlayerSay", "mingeban-commands", function(ply, txt)
 	local prefix = txt:match(mingeban.utils.CmdPrefix)
 
 	if prefix then
-
 		local cmd = txt:Split(" ")
 		cmd = cmd[1]:sub(prefix:len() + 1):lower()
 
 		local args = txt:sub(prefix:len() + 1 + cmd:len() + 1)
 
 		mingeban:RunCommand(cmd, ply, args)
-		--[[
-		local time = SysTime()
-
-		args = mingeban:ParseArgs(args)
-
-		print("it took " .. (tostring((SysTime() - time) * 1000)) .. " milliseconds to run a command")
-		print("here is the command: \"" .. cmd .. "\"")
-		print("here are the args")
-		PrintTable(args)
-		]]
-
 	end
 
 end)
+
+-- networking
+-- to be done (lul)
 

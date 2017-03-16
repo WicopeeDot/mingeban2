@@ -1,5 +1,6 @@
 
 local checkParam = mingeban.utils.checkParam
+local accessorFunc = mingeban.utils.accessorFunc
 
 local Rank = {}
 Rank.__index = Rank
@@ -13,6 +14,7 @@ function Rank:SetLevel(level)
 
 	mingeban:SaveRanks()
 	return self
+
 end
 function Rank:SetName(name)
 	checkParam(name, "string", 1, "SetName")
@@ -22,12 +24,14 @@ function Rank:SetName(name)
 
 	mingeban:SaveRanks()
 	return self
+
 end
 function Rank:SetRoot(root)
 	self.root = root
 
 	mingeban:SaveRanks()
 	return self
+
 end
 function Rank:AddUser(sid)
 	if type(sid) == "Player" and not sid:IsBot() then
@@ -86,14 +90,9 @@ end
 function Rank:GetUsers()
 	return mingeban.users[self.name]
 end
-local function getBasicKey(keyName, key)
-	Rank["Get" .. keyName] = function(self)
-		return self[key]
-	end
-end
-getBasicKey("Name", "name")
-getBasicKey("Level", "level")
-getBasicKey("Root", "root")
+accessorFunc(Rank, "Name", "name")
+accessorFunc(Rank, "Level", "level")
+accessorFunc(Rank, "Root", "root")
 
 function mingeban:CreateRank(name, level, root)
 	checkParam(name, "string", 1, "CreateRank")
@@ -164,6 +163,7 @@ function mingeban:SaveRanks()
 		file.CreateDir("mingeban")
 	end
 	file.Write("mingeban/ranks.txt", util.TableToJSON(self.ranks))
+
 	net.Start("mingeban-getranks")
 	net.Broadcast()
 
@@ -176,6 +176,7 @@ function mingeban:SaveUsers()
 	local users = table.Copy(self.users)
 	users.user = nil
 	file.Write("mingeban/users.txt", util.TableToJSON(users))
+
 	net.Start("mingeban-getranks")
 	net.Broadcast()
 

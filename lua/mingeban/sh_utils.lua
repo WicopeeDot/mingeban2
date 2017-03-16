@@ -14,6 +14,7 @@ function mingeban.utils.parseArgs(str) -- featuring no continues and better pars
 	local chars = str:Split("")
 	local grouping = false
 	local escaping = false
+	local grouper = false
 	local separator = false
 	local arg = ""
 	local ret = {}
@@ -30,9 +31,12 @@ function mingeban.utils.parseArgs(str) -- featuring no continues and better pars
 		end
 
 		if cont then
-			if ((arg ~= "" and grouping) or (arg == "" and not grouping)) and c:match(mingeban.utils.CmdArgGrouper) then -- do we try to group
+			if ((arg ~= "" and grouping) or (arg == "" and not grouping)) and c:match(grouper or mingeban.utils.CmdArgGrouper) then -- do we try to group
 
 				if not before or before and not escaping then -- are we escaping or starting a command
+					if not grouper then
+						grouper = c -- pick the current grouper
+					end
 					grouping = not grouping -- toggle group mode
 					if arg ~= "" then
 						ret[#ret + 1] = arg -- finish the job, add arg to list
@@ -51,7 +55,7 @@ function mingeban.utils.parseArgs(str) -- featuring no continues and better pars
 					if not separator then
 						separator = c -- pick the current separator
 					end
-					if arg ~= "" then
+					if before and not before:match(grouper or mingeban.utils.CmdArgGrouper) then -- arg ~= "" then
 						ret[#ret + 1] = arg -- finish the job, add arg to list
 						arg = "" -- reset arg
 					end
@@ -136,5 +140,17 @@ function mingeban.utils.findPlayers(str)
 	end
 
 	return found_nodupes
+end
+
+function mingeban.utils.accessorFunc(tbl, keyName, key)
+	if not tbl["Set" .. keyName] then
+		tbl["Set" .. keyName] = function(self, value)
+			self[key] = value
+			return self
+		end
+	end
+	tbl["Get" .. keyName] = function(self)
+		return self[key]
+	end
 end
 
