@@ -176,12 +176,17 @@ function mingeban:RunCommand(name, caller, line)
 
 	]]
 
-	local ok, err = cmd.callback(caller, line, unpack(args or {}))
-	if ok == false then
+	local ok2, err2
+	local ok, err = pcall(function()
+		ok2, err2 = cmd.callback(caller, line, unpack(args or {}))
+	end)
+	if not ok then
+		cmdError(caller, "command lua error: " .. err)
+		return false
+	elseif ok2 == false then
 		cmdError(caller, err)
 		return false
 	end
-
 end
 
 -- load commands

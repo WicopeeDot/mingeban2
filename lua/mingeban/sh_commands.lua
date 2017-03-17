@@ -2,7 +2,7 @@
 local checkParam = mingeban.utils.checkParam
 local accessorFunc = mingeban.utils.accessorFunc
 
-mingeban.commands = {} -- intialize commands table
+mingeban.commands = mingeban.commands or {} -- intialize commands table
 
 -- setup argument object
 
@@ -16,14 +16,14 @@ ARGTYPE_ENTITIES= 7
 ARGTYPE_VARARGS = 8
 
 mingeban.argTypesStrings = {
-	[ ARGTYPE_STRING  ] = "string",
-	[ ARGTYPE_NUMBER  ] = "number",
-	[ ARGTYPE_BOOLEAN ] = "boolean",
-	[ ARGTYPE_PLAYER  ] = "player",
-	[ ARGTYPE_PLAYERS ] = "players",
-	[ ARGTYPE_ENTITY  ] = "entity",
-	[ ARGTYPE_ENTITIES] = "entities",
-	[ ARGTYPE_VARARGS ] = "varargs"
+	[ ARGTYPE_STRING   ] = "string",
+	[ ARGTYPE_NUMBER   ] = "number",
+	[ ARGTYPE_BOOLEAN  ] = "boolean",
+	[ ARGTYPE_PLAYER   ] = "player",
+	[ ARGTYPE_PLAYERS  ] = "players",
+	[ ARGTYPE_ENTITY   ] = "entity",
+	[ ARGTYPE_ENTITIES ] = "entities",
+	[ ARGTYPE_VARARGS  ] = "varargs"
 }
 local types = mingeban.argTypesStrings
 

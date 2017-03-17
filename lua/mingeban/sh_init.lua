@@ -1,6 +1,6 @@
 
-mingeban = {}
-mingeban.objects = {}
+mingeban = mingeban or {}
+mingeban.objects = mingeban.objects or {}
 
 include("sh_utils.lua")
 include("sh_ranks.lua")
