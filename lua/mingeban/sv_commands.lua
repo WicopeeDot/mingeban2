@@ -100,28 +100,16 @@ function mingeban:RunCommand(name, caller, line)
 
 			elseif argData.type == ARGTYPE_PLAYER then
 				funcArg = mingeban.utils.findEntity(arg)[1]
-				if not funcArg then
-					cmdError(caller, "No player found. (" .. arg .. ")")
-					return false
-				end
+
 			elseif argData.type == ARGTYPE_PLAYERS then
 				funcArg = mingeban.utils.findEntity(arg)
-				if #funcArg <= 0 then
-					cmdError(caller, "No players found. (" .. arg .. ")")
-					return false
-				end
+
 			elseif argData.type == ARGTYPE_ENTITY then
 				funcArg = mingeban.utils.findEntity(arg, false)[1]
-				if not funcArg then
-					cmdError(caller, "No entity found. (" .. arg .. ")")
-					return false
-				end
+
 			elseif argData.type == ARGTYPE_ENTITIES then
 				funcArg = mingeban.utils.findEntity(arg, false)
-				if #funcArg <= 0 then
-					cmdError(caller, "No entities found. (" .. arg .. ")")
-					return false
-				end
+
 			end
 
 			if argData.filter then
