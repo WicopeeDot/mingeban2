@@ -39,11 +39,9 @@ hook.Add("Initialize", "mingeban-requestcommands", askRanks)
 function mingeban.ConsoleAutoComplete(_, args)
 	local autoComplete = {}
 
-	local argsTbl = args:Split(" ")
-	table.remove(argsTbl, 1) -- remove empty string
-
-	local cmd = argsTbl[1]
-	table.remove(argsTbl, 1) -- remove cmd from args
+	local cmd = args:Split(" ")[2]
+	local argsTbl = mingeban.utils.parseArgs(args)
+	table.remove(argsTbl, 1)
 
 	local argsStr = args:sub(cmd:len() + 2):Trim()
 	if cmd then
