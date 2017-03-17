@@ -44,6 +44,10 @@ local function cmdError(ply, reason)
 end
 
 function mingeban:RunCommand(name, caller, line)
+	checkParam(name, "string", 1, "RunCommand")
+	checkParam(caller, "Player", 2, "RunCommand")
+	checkParam(line, "string", 3, "RunCommand")
+
 	local cmd = self.commands[name]
 	if not cmd then
 		cmdError(caller, "Unknown command.")

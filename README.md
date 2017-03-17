@@ -19,7 +19,13 @@ This might turn into a feature list when the project gets completed.
         - [ ] Chat
     - [ ] Turn rank checking into some permission system that is not hardcoded?
     - [ ] Write a documentation / guide about their creation.
-- [ ] An in-game panel to work with commands, and the whole addon. (External repository / project?)
+
+### Might come out as separate add-ons
+
+- [ ] An in-game panel to work with commands, and other aspects of the whole add-on.
 - [ ] Context menu player extra properties to interact with them.
+
+### To Do When Done
+
 - [ ] Add more argument types sanity checks everywhere in order to not fall apart if we make one little mistake.
-- [ ] Add more comments.
+- [ ] Add more comments. To do when done.

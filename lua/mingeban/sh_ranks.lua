@@ -31,6 +31,8 @@ if SERVER then
 
 	end
 	function Rank:SetRoot(root)
+		checkParam(name, "boolean", 1, "SetRoot")
+
 		self.root = root
 
 		mingeban:SaveRanks()
@@ -102,6 +104,8 @@ accessorFunc(Rank, "Root", "root", CLIENT)
 mingeban.objects.Rank = Rank
 
 function mingeban:GetRank(name)
+	checkParam(name, "string", 1, "GetRank")
+
 	for level, rank in next, self.ranks do
 		if rank.name == name:lower() then
 			return self.ranks[level]
@@ -113,6 +117,8 @@ end
 local PLAYER = FindMetaTable("Player")
 
 function PLAYER:CheckUserGroupLevel(name)
+	checkParam(name, "string", 1, "CheckUserGroupLevel")
+
 	local plyRank = mingeban:GetRank(self:GetUserGroup())
 	if plyRank:GetRoot() then return true end
 
@@ -126,6 +132,8 @@ function PLAYER:CheckUserGroupLevel(name)
 	end
 end
 function PLAYER:IsUserGroup(name)
+	checkParam(name, "string", 1, "IsUserGroup")
+
 	return self:GetUserGroup() == name:lower()
 end
 

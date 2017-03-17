@@ -11,6 +11,8 @@ mingeban.utils.CmdArgSeparators = "[%s,]"
 mingeban.utils.CmdEscapeChar = "[\\]"
 
 function mingeban.utils.parseArgs(str) -- featuring no continues and better parsing than aowl!
+	checkParam(str, "string", 1, "parseArgs")
+
 	local chars = str:Split("")
 	local grouping = false
 	local escaping = false
@@ -81,6 +83,8 @@ end
 -- From original mingeban, could be useful
 -- Written by Xaotic, optimized by Tenrys
 function mingeban.utils.findPlayers(str)
+	checkParam(str, "string", 1, "findPlayers")
+
 	local found = {}
 	str = str:Trim()
 	local players = player.GetAll()
