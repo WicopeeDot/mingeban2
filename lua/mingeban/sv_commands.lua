@@ -2,46 +2,10 @@
 -- initialize helper functions
 
 local checkParam = mingeban.utils.checkParam
-local accessorFunc = mingeban.utils.accessorFunc
 
-mingeban.commands = {} -- intialize commands table
-
--- setup argument object
-
-ARGTYPE_STRING  = 1
-ARGTYPE_NUMBER  = 2
-ARGTYPE_BOOLEAN = 3
-ARGTYPE_PLAYER  = 4
-ARGTYPE_PLAYERS = 5
-ARGTYPE_VARARGS = 6
-local types = {
-	[ ARGTYPE_STRING  ] = "string",
-	[ ARGTYPE_NUMBER  ] = "number",
-	[ ARGTYPE_BOOLEAN ] = "boolean",
-	[ ARGTYPE_PLAYER  ] = "player",
-	[ ARGTYPE_PLAYERS ] = "players",
-	[ ARGTYPE_VARARGS ] = "varargs"
-}
-local Argument = {}
-Argument.__index = Argument
-accessorFunc(Argument, "Type", "type")
-accessorFunc(Argument, "Name", "name")
-accessorFunc(Argument, "Optional", "optional")
-accessorFunc(Argument, "Filter", "filter")
-
--- setup command object, holds arguments
-
-local Command = {}
-Command.__index = Command
-function Command:AddArgument(type)
-	local arg = setmetatable({
-		type = type,
-	}, Argument)
-	self.args[#self.args + 1] = arg
-	return arg
-
-end
-accessorFunc(Command, "Group", "group")
+local types = mingeban.argTypes
+local Argument = mingeban.objects.Argument
+local Command = mingeban.objects.Command
 
 -- command registering process
 
@@ -230,6 +194,19 @@ testargsCmd:AddArgument(ARGTYPE_VARARGS)
 for _, file in next, (file.Find("mingeban/commands/*.lua", "LUA")) do
 	include("mingeban/commands/" .. file)
 end
+
+util.AddNetworkString("mingeban-getcommands")
+
+net.Receive("mingeban-getcommands", function(_, ply)
+	net.Start("mingeban-getcommands")
+		local commands = table.Copy(mingeban.commands)
+		for name, _ in next, commands do
+			commands[name].callback = nil
+		end
+		net.WriteTable(commands)
+	net.Send(ply)
+
+end)
 
 -- commands running by chat or console
 

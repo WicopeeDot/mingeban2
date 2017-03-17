@@ -1,6 +1,7 @@
 
 AddCSLuaFile("sh_utils.lua")
 AddCSLuaFile("sh_ranks.lua")
+AddCSLuaFile("sh_commands.lua")
 AddCSLuaFile("cl_ranks.lua")
 AddCSLuaFile("cl_commands.lua")
 include("sv_ranks.lua")

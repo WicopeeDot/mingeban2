@@ -142,8 +142,8 @@ function mingeban.utils.findPlayers(str)
 	return found_nodupes
 end
 
-function mingeban.utils.accessorFunc(tbl, keyName, key)
-	if not tbl["Set" .. keyName] then
+function mingeban.utils.accessorFunc(tbl, keyName, key, noSet)
+	if not noSet and not tbl["Set" .. keyName] then
 		tbl["Set" .. keyName] = function(self, value)
 			self[key] = value
 			return self
