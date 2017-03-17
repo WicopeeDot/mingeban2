@@ -78,8 +78,9 @@ function mingeban:RunCommand(name, caller, line)
 		return false
 	end
 
+	local args
 	if #cmd.args > 0 then
-		local args = self.utils.parseArgs(line)
+		args = self.utils.parseArgs(line)
 
 		local neededArgs = 0
 		for _, arg in next, cmd.args do
