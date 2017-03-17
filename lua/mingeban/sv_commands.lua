@@ -3,7 +3,6 @@
 
 local checkParam = mingeban.utils.checkParam
 
-local types = mingeban.argTypes
 local Argument = mingeban.objects.Argument
 local Command = mingeban.objects.Command
 
@@ -65,7 +64,7 @@ function mingeban:RunCommand(name, caller, line)
 
 	local syntax = mingeban:GetCommandSyntax(name)
 	if neededArgs > #args then
-		cmdError(caller, syntax)
+		cmdError(caller, name .. " syntax: " .. syntax)
 		return false
 	end
 

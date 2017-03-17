@@ -14,7 +14,9 @@ This might turn into a feature list when the project gets completed.
     - [x] Server console support.
     - [x] Load commands in mingeban/commands folder.
     - [x] Network to players so we can add GUI, clientside console support, ...
-        - [ ] Continue working on autocomplete where we left off
+    - [ ] Autocompletion
+        - [x] Console
+        - [ ] Chat
     - [ ] Turn rank checking into some permission system that is not hardcoded?
     - [ ] Write a documentation / guide about their creation.
 - [ ] An in-game panel to work with commands, and the whole addon. (External repository / project?)

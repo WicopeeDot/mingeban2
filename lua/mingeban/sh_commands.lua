@@ -21,6 +21,7 @@ mingeban.argTypes = {
 	[ ARGTYPE_PLAYERS ] = "players",
 	[ ARGTYPE_VARARGS ] = "varargs"
 }
+local types = mingeban.argTypes
 
 local Argument = {}
 Argument.__index = Argument
@@ -53,7 +54,7 @@ function mingeban:GetCommandSyntax(name)
 	local cmd = self.commands[name]
 	if not cmd then return end
 
-	local str = name .. " syntax: "
+	local str = ""
 	for k, arg in next, cmd.args do
 		local brStart, brEnd
 		if arg.optional or arg.type == ARGTYPE_VARARGS then

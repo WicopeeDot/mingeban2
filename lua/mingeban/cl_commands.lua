@@ -40,29 +40,46 @@ function mingeban.ConsoleAutoComplete(_, args)
 	local autoComplete = {}
 
 	local argsTbl = args:Split(" ")
-	local cmd = argsTbl[1]
-	if cmd then
-		local cmd = mingeban.commands[cmd]
-		if cmd then
-			local argsStr = args:sub(cmd:len() + 2):Trim()
-			local curArg = argsTbl[#argsTbl]
+	table.remove(argsTbl, 1) -- remove empty string
 
-			local argData = cmd.args[#argsTbl]
+	local cmd = argsTbl[1]
+	table.remove(argsTbl, 1) -- remove cmd from args
+
+	local argsStr = args:sub(cmd:len() + 2):Trim()
+	if cmd then
+		local cmdData = mingeban.commands[cmd]
+		if cmdData then
+			local curArg = argsTbl[#argsTbl]
+			local argData = cmdData.args[#argsTbl]
 			if argData then
 				if argData.type == ARGTYPE_PLAYER then
 					for _, ply in next, player.GetAll() do
-						plys[#plys + 1] = ply:Nick()
+						if ('"' .. ply:Nick() .. '"'):lower():match(curArg) then
+							autoComplete[#autoComplete + 1] = '"' .. ply:Nick() .. '"' -- autocomplete nick
+						end
 					end
+				end
+			end
+		else
+			for name, cmdData in next, mingeban.commands do
+				if name:lower():match(cmd) then
+					autoComplete[#autoComplete + 1] = name -- autocomplete command
 				end
 			end
 		end
 	end
 
-	for k, v in next, autoComplete do
-		autoComplete[k] = "mingeban " .. (cmd or "") .. v
+	for k, v in next, autoComplete do -- adapt for console use
+		local curArg = argsTbl[#argsTbl] or ""
+		local argsStr = argsStr:sub(1, argsStr:len() - curArg:len(), 0):Trim()
+		autoComplete[k] = "mingeban" .. (mingeban.commands[cmd] and (" " .. cmd .. " ") or "") .. argsStr .. " " .. v
 	end
 
-	return table.Count(autoComplete) > 0 and autoComplete or (cmd and { mingeban:GetCommandSyntax(cmd) } or {})
+	if table.Count(autoComplete) <= 0 then -- no suggestions? print syntax
+		autoComplete[1] = mingeban.commands[cmd] and "mingeban " .. (cmd or "") .. ((" " .. mingeban:GetCommandSyntax(cmd)) or "")
+	end
+
+	return autoComplete
 
 end
 
