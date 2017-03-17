@@ -82,11 +82,17 @@ if SERVER then
 		checkParam(perm, "string", 1, "AddPermission")
 
 		self.permissions[perm] = true
+
+		mingeban:SaveUsers()
+		return self
 	end
 	function Rank:RemovePermission(perm)
 		checkParam(perm, "string", 1, "RemovePermission")
 
 		self.permissions[perm] = nil
+
+		mingeban:SaveUsers()
+		return self
 	end
 end
 function Rank:GetPermission(perm)
