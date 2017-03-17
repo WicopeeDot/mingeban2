@@ -85,6 +85,7 @@ end
 
 concommand.Add("mingeban", function(ply, _, cmd, args)
 	local cmd = cmd[1]
+	if not cmd then return end
 	local args = args:sub(cmd:len() + 2):Trim()
 
 	net.Start("mingeban-runcommand")
