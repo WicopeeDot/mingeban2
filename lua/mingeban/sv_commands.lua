@@ -11,7 +11,6 @@ local Command = mingeban.objects.Command
 local function registerCommand(name, callback)
 	mingeban.commands[name] = setmetatable({
 		callback = callback, -- caller, line, ...
-		group = "user",
 		args = {},
 	}, Command)
 	return mingeban.commands[name]
@@ -54,7 +53,7 @@ function mingeban:RunCommand(name, caller, line)
 		return false
 	end
 
-	if type(caller) == "Player" and not caller:CheckUserGroupLevel(cmd.group) then
+	if type(caller) == "Player" and not caller:GetRank():GetPermission("command." .. name) then
 		cmdError(caller, "Insufficient permissions.")
 		return false
 	end

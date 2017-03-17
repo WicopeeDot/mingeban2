@@ -15,6 +15,7 @@ function mingeban:CreateRank(name, level, root)
 		level = level,
 		name = name:lower(),
 		root = root,
+		permissions = {}
 	}, Rank)
 	self.ranks[level] = rank
 	return rank
@@ -47,7 +48,7 @@ function mingeban:InitializeRanks()
 	self.users = util.JSONToTable(file.Read("mingeban/users.txt", "DATA") or "{}")
 
 	if table.Count(self.ranks) < 1 then
-		mingeban:CreateRank("superadmin", 255, true) -- :AddUser(easylua.FindEntity("tenrys"):SteamID())
+		mingeban:CreateRank("superadmin", 255, true)
 		mingeban:CreateRank("user", 1, false)
 
 		self:SaveRanks()

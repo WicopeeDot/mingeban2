@@ -78,6 +78,24 @@ if SERVER then
 		return self
 
 	end
+	function Rank:AddPermission(perm)
+		checkParam(perm, "string", 1, "AddPermission")
+
+		self.permissions[perm] = true
+	end
+	function Rank:RemovePermission(perm)
+		checkParam(perm, "string", 1, "RemovePermission")
+
+		self.permissions[perm] = nil
+	end
+end
+function Rank:GetPermission(perm)
+	checkParam(perm, "string", 1, "GetPermission")
+
+	return self.permissions[perm]
+end
+function Rank:GetPermissions()
+	return self.root or self.permissions[perm]
 end
 function Rank:GetUser(sid)
 	if type(sid) == "Player" and not sid:IsBot() then
@@ -130,6 +148,9 @@ function PLAYER:CheckUserGroupLevel(name)
 	else
 		return true
 	end
+end
+function PLAYER:GetRank(name)
+	return mingeban:GetRank(self:GetUserGroup())
 end
 function PLAYER:IsUserGroup(name)
 	checkParam(name, "string", 1, "IsUserGroup")

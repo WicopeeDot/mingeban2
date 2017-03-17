@@ -16,9 +16,9 @@ This might turn into a feature list when the project gets completed.
     - [x] Network to players so we can add GUI, clientside console support, ...
     - [ ] Autocompletion
         - [x] Console
-        - [ ] Chat
-    - [ ] Turn rank checking into some permission system that is not hardcoded?
-    - [ ] Write a documentation / guide about their creation.
+        - [ ] Chat (not priority)
+    - [x] Turn rank checking into some permission system that is not hardcoded?
+    - [ ] Write a documentation / guide about their creation. (if needed)
 
 ### Might come out as separate add-ons
 

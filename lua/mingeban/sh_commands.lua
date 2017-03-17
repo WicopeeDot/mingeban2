@@ -46,7 +46,6 @@ if SERVER then
 
 	end
 end
-accessorFunc(Command, "Group", "group", CLIENT)
 
 mingeban.objects.Command = Command
 
