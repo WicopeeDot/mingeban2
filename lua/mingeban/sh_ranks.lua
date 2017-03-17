@@ -154,6 +154,7 @@ function PLAYER:CheckUserGroupLevel(name)
 	else
 		return true
 	end
+
 end
 function PLAYER:GetRank(name)
 	return mingeban:GetRank(self:GetUserGroup())
@@ -162,6 +163,7 @@ function PLAYER:IsUserGroup(name)
 	checkParam(name, "string", 1, "IsUserGroup")
 
 	return self:GetUserGroup() == name:lower()
+
 end
 
 --[[ useless, this is default

@@ -19,15 +19,23 @@ function mingeban.CreateCommand(name, callback)
 	checkParam(callback, "function", 2, "CreateCommand")
 
 	if istable(name) then
-		local cmds = {}
-		for _, name in next, name do
-			cmds[#cmds + 1] = registerCommand(name, callback)
+		local cmd
+		for k, name in next, name do
+			if k == 1 then
+				cmd = registerCommand(name, callback)
+			else
+				mingeban.commands[name] = cmd
+			end
 		end
-		return cmds
+
+		net.Receivers["mingeban-getcommands"](_, player.GetAll())
+		return cmd
 	else
 		checkParam(name, "string", 1, "CreateCommand")
 
-		return registerCommand(name, callback)
+		local cmd = registerCommand(name, callback)
+		net.Receivers["mingeban-getcommands"](_, player.GetAll())
+		return cmd
 	end
 
 end
@@ -37,14 +45,19 @@ end
 util.AddNetworkString("mingeban-cmderror")
 
 local function cmdError(ply, reason)
+	-- PrintTable(debug.getinfo(2))
+	if not IsValid(ply) then
+		MsgC(Color(255, 127, 127), "[mingeban] ") MsgC(Color(255, 255, 255), reason .. "\n")
+		return
+	end
+
 	net.Start("mingeban-cmderror")
-		net.WriteString(reason)
+		if isstring(reason) then net.WriteString(reason) end
 	net.Send(ply)
 end
 
 function mingeban:RunCommand(name, caller, line)
 	checkParam(name, "string", 1, "RunCommand")
-	checkParam(caller, "Player", 2, "RunCommand")
 	checkParam(line, "string", 3, "RunCommand")
 
 	local cmd = self.commands[name]
@@ -53,7 +66,7 @@ function mingeban:RunCommand(name, caller, line)
 		return false
 	end
 
-	if type(caller) == "Player" and not caller:GetRank():GetPermission("command." .. name) then
+	if type(caller) == "Player" and not caller:GetRank():GetPermission("command." .. name) and not caller:GetRank():GetRoot() then
 		cmdError(caller, "Insufficient permissions.")
 		return false
 	end
@@ -86,12 +99,27 @@ function mingeban:RunCommand(name, caller, line)
 				funcArg = tobool(arg:Trim():lower())
 
 			elseif argData.type == ARGTYPE_PLAYER then
-				funcArg = mingeban.utils.findPlayers(arg)[1]
-
+				funcArg = mingeban.utils.findEntity(arg)[1]
+				if not funcArg then
+					cmdError(caller, "No player found. (" .. arg .. ")")
+					return false
+				end
 			elseif argData.type == ARGTYPE_PLAYERS then
-				funcArg = mingeban.utils.findPlayers(arg)
-				if #arg <= 0 then
-					cmdError(caller, "No players found.")
+				funcArg = mingeban.utils.findEntity(arg)
+				if #funcArg <= 0 then
+					cmdError(caller, "No players found. (" .. arg .. ")")
+					return false
+				end
+			elseif argData.type == ARGTYPE_ENTITY then
+				funcArg = mingeban.utils.findEntity(arg, false)[1]
+				if not funcArg then
+					cmdError(caller, "No entity found. (" .. arg .. ")")
+					return false
+				end
+			elseif argData.type == ARGTYPE_ENTITIES then
+				funcArg = mingeban.utils.findEntity(arg, false)
+				if #funcArg <= 0 then
+					cmdError(caller, "No entities found. (" .. arg .. ")")
 					return false
 				end
 			end
@@ -151,7 +179,11 @@ function mingeban:RunCommand(name, caller, line)
 
 	]]
 
-	cmd.callback(caller, line, unpack(args))
+	local ok, err = cmd.callback(caller, line, unpack(args))
+	if ok == false then
+		cmdError(caller, err)
+		return false
+	end
 
 end
 
@@ -163,7 +195,7 @@ local testargsCmd = mingeban.CreateCommand("testargs", function(caller, line, ..
 	for k, v in next, { ... } do
 		print("\t", v, type(v))
 	end
-end):SetGroup("superadmin")
+end)
 
 testargsCmd:AddArgument(ARGTYPE_STRING)
 testargsCmd:AddArgument(ARGTYPE_NUMBER)

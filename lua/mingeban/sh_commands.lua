@@ -11,17 +11,21 @@ ARGTYPE_NUMBER  = 2
 ARGTYPE_BOOLEAN = 3
 ARGTYPE_PLAYER  = 4
 ARGTYPE_PLAYERS = 5
-ARGTYPE_VARARGS = 6
+ARGTYPE_ENTITY  = 6
+ARGTYPE_ENTITIES= 7
+ARGTYPE_VARARGS = 8
 
-mingeban.argTypes = {
+mingeban.argTypesStrings = {
 	[ ARGTYPE_STRING  ] = "string",
 	[ ARGTYPE_NUMBER  ] = "number",
 	[ ARGTYPE_BOOLEAN ] = "boolean",
 	[ ARGTYPE_PLAYER  ] = "player",
 	[ ARGTYPE_PLAYERS ] = "players",
+	[ ARGTYPE_ENTITY  ] = "entity",
+	[ ARGTYPE_ENTITIES] = "entities",
 	[ ARGTYPE_VARARGS ] = "varargs"
 }
-local types = mingeban.argTypes
+local types = mingeban.argTypesStrings
 
 local Argument = {}
 Argument.__index = Argument

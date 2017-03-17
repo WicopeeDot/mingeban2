@@ -11,7 +11,7 @@ mingeban.utils.CmdArgSeparators = "[%s,]"
 mingeban.utils.CmdEscapeChar = "[\\]"
 
 function mingeban.utils.parseArgs(str) -- featuring no continues and better parsing than aowl!
-	checkParam(str, "string", 1, "parseArgs")
+	mingeban.utils.checkParam(str, "string", 1, "parseArgs")
 
 	local chars = str:Split("")
 	local grouping = false
@@ -82,8 +82,9 @@ end
 
 -- From original mingeban, could be useful
 -- Written by Xaotic, optimized by Tenrys
-function mingeban.utils.findPlayers(str)
-	checkParam(str, "string", 1, "findPlayers")
+function mingeban.utils.findEntity(str, plyonly)
+	mingeban.utils.checkParam(str, "string", 1, "findEntity")
+	if plyonly == nil then plyonly = true end
 
 	local found = {}
 	str = str:Trim()
@@ -135,6 +136,18 @@ function mingeban.utils.findPlayers(str)
 		end
 	end
 
+	if not plyonly then
+		for _, ent in next, ents.GetAll() do
+			if tostring(ent:EntIndex()):match(str) then
+				found[#found + 1] = ent
+			end
+
+			if ent:GetClass():match(str) then
+				found[#found + 1] = ent
+			end
+		end
+	end
+
 	local found_nodupes = {}
 
 	for _, ply in next, found do
@@ -144,6 +157,7 @@ function mingeban.utils.findPlayers(str)
 	end
 
 	return found_nodupes
+
 end
 
 function mingeban.utils.accessorFunc(tbl, keyName, key, noSet)
@@ -156,5 +170,6 @@ function mingeban.utils.accessorFunc(tbl, keyName, key, noSet)
 	tbl["Get" .. keyName] = function(self)
 		return self[key]
 	end
+
 end
 

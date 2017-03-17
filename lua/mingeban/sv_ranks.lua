@@ -38,6 +38,7 @@ function mingeban:DeleteRank(name)
 			break
 		end
 	end
+
 end
 
 function mingeban:InitializeRanks()
@@ -120,6 +121,7 @@ hook.Add("PlayerInitialSpawn", "mingeban-ranks", function(ply)
 			end
 		end
 	end
+
 end)
 
 mingeban:InitializeRanks()

@@ -4,38 +4,6 @@ local checkParam = mingeban.utils.checkParam
 local Argument = mingeban.objects.Argument
 local Command = mingeban.objects.Command
 
-local function askCommands()
-	net.Start("mingeban-getcommands")
-	net.SendToServer()
-end
-
-net.Receive("mingeban-getcommands", function()
-	local commands
-	local succ = pcall(function()
-		commands = net.ReadTable()
-	end)
-
-	if not istable(commands) then
-		askCommands()
-		return
-	end
-
-	for name, cmd in next, commands do
-		for k, arg in next, cmd.args do
-			cmd.args[k] = setmetatable(arg, Argument)
-		end
-		commands[name] = setmetatable(cmd, Command)
-	end
-
-	mingeban.commands = commands
-
-end)
-
-if istable(GAMEMODE) then
-	askCommands()
-end
-hook.Add("Initialize", "mingeban-requestcommands", askRanks)
-
 function mingeban.ConsoleAutoComplete(_, args)
 	local autoComplete = {}
 
@@ -84,6 +52,7 @@ end
 concommand.Add("mingeban", function(ply, _, cmd, args)
 	local cmd = cmd[1]
 	if not cmd then return end
+
 	local args = args:sub(cmd:len() + 2):Trim()
 
 	net.Start("mingeban-runcommand")
@@ -97,11 +66,48 @@ for _, file in next, (file.Find("mingeban/commands/*.lua", "LUA")) do
 	include("mingeban/commands/" .. file)
 end
 
+local function askCommands()
+	net.Start("mingeban-getcommands")
+	net.SendToServer()
+end
+
+net.Receive("mingeban-getcommands", function()
+	local commands
+	local succ = pcall(function()
+		commands = net.ReadTable()
+	end)
+
+	if not istable(commands) then
+		askCommands()
+		return
+	end
+
+	for name, cmd in next, commands do
+		for k, arg in next, cmd.args do
+			cmd.args[k] = setmetatable(arg, Argument)
+		end
+		commands[name] = setmetatable(cmd, Command)
+	end
+
+	mingeban.commands = commands
+
+end)
+
+if istable(GAMEMODE) then
+	askCommands()
+end
+hook.Add("Initialize", "mingeban-requestcommands", askRanks)
+
 net.Receive("mingeban-cmderror", function()
-	local reason = net.ReadString()
-	if not isstring(reason) then return end
+	local reason
+	local succ = pcall(function()
+		reason = net.ReadString()
+	end)
 
 	surface.PlaySound("buttons/button2.wav")
+	if not reason then return end
+
 	notification.AddLegacy("mingeban: " .. reason, NOTIFY_ERROR, 6)
+
 end)
 
