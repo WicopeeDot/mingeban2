@@ -44,27 +44,6 @@ local function cmdError(ply, reason)
 	net.Send(ply)
 end
 
-function mingeban:GetCommandSyntax(name)
-	local cmd = self.commands[name]
-	if not cmd then return end
-
-	local str = name .. " syntax: "
-	for k, arg in next, cmd.args do
-		local brStart, brEnd
-		if arg.optional or arg.type == ARGTYPE_VARARGS then
-			brStart = "["
-			brEnd = "]"
-		else
-			brStart = "<"
-			brEnd = ">"
-		end
-		str = str .. brStart .. (arg.name and arg.name .. ":" or "") .. types[arg.type] .. brEnd .. " "
-	end
-
-	return str
-
-end
-
 function mingeban:RunCommand(name, caller, line)
 	local cmd = self.commands[name]
 	if not cmd then
@@ -209,6 +188,15 @@ net.Receive("mingeban-getcommands", function(_, ply)
 end)
 
 -- commands running by chat or console
+
+util.AddNetworkString("mingeban-runcommand")
+
+net.Receive("mingeban-runcommand", function(_, ply)
+	local cmd = net.ReadString()
+	local args = net.ReadString()
+	mingeban:RunCommand(cmd, ply, args)
+
+end)
 
 concommand.Add("mingeban", function(ply, _, cmd, args)
 	local cmd = cmd[1]

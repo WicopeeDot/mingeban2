@@ -49,3 +49,24 @@ accessorFunc(Command, "Group", "group", CLIENT)
 
 mingeban.objects.Command = Command
 
+function mingeban:GetCommandSyntax(name)
+	local cmd = self.commands[name]
+	if not cmd then return end
+
+	local str = name .. " syntax: "
+	for k, arg in next, cmd.args do
+		local brStart, brEnd
+		if arg.optional or arg.type == ARGTYPE_VARARGS then
+			brStart = "["
+			brEnd = "]"
+		else
+			brStart = "<"
+			brEnd = ">"
+		end
+		str = str .. brStart .. (arg.name and arg.name .. ":" or "") .. types[arg.type] .. brEnd .. " "
+	end
+
+	return str
+
+end
+
