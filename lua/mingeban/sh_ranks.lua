@@ -83,7 +83,7 @@ if SERVER then
 
 		self.permissions[perm] = true
 
-		mingeban:SaveUsers()
+		mingeban:SaveRanks()
 		return self
 	end
 	function Rank:RemovePermission(perm)
@@ -91,7 +91,7 @@ if SERVER then
 
 		self.permissions[perm] = nil
 
-		mingeban:SaveUsers()
+		mingeban:SaveRanks()
 		return self
 	end
 end
