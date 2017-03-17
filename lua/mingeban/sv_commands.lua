@@ -173,6 +173,7 @@ testargsCmd:AddArgument(ARGTYPE_PLAYERS)
 testargsCmd:AddArgument(ARGTYPE_VARARGS)
 
 for _, file in next, (file.Find("mingeban/commands/*.lua", "LUA")) do
+	AddCSLuaFile("mingeban/commands/" .. file)
 	include("mingeban/commands/" .. file)
 end
 

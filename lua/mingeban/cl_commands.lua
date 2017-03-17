@@ -93,6 +93,10 @@ concommand.Add("mingeban", function(ply, _, cmd, args)
 
 end, mingeban.ConsoleAutoComplete)
 
+for _, file in next, (file.Find("mingeban/commands/*.lua", "LUA")) do
+	include("mingeban/commands/" .. file)
+end
+
 net.Receive("mingeban-cmderror", function()
 	local reason = net.ReadString()
 	if not isstring(reason) then return end
