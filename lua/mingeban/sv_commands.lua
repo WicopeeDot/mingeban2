@@ -28,13 +28,20 @@ function mingeban.CreateCommand(name, callback)
 			end
 		end
 
-		net.Receivers["mingeban-getcommands"](_, player.GetAll())
+		local func = net.Receivers["mingeban-getcommands"]
+		if func then
+			func(_, player.GetAll())
+		end
 		return cmd
 	else
 		checkParam(name, "string", 1, "CreateCommand")
 
 		local cmd = registerCommand(name, callback)
-		net.Receivers["mingeban-getcommands"](_, player.GetAll())
+
+		local func = net.Receivers["mingeban-getcommands"]
+		if func then
+			func(_, player.GetAll())
+		end
 		return cmd
 	end
 
@@ -71,77 +78,79 @@ function mingeban:RunCommand(name, caller, line)
 		return false
 	end
 
-	local args = self.utils.parseArgs(line)
+	if #cmd.args > 0 then
+		local args = self.utils.parseArgs(line)
 
-	local neededArgs = 0
-	for _, arg in next, cmd.args do
-		if not arg.optional and arg.type ~= ARGTYPE_VARARGS then neededArgs = neededArgs + 1 end
-	end
+		local neededArgs = 0
+		for _, arg in next, cmd.args do
+			if not arg.optional and arg.type ~= ARGTYPE_VARARGS then neededArgs = neededArgs + 1 end
+		end
 
-	local syntax = mingeban:GetCommandSyntax(name)
-	if neededArgs > #args then
-		cmdError(caller, name .. " syntax: " .. syntax)
-		return false
-	end
+		local syntax = mingeban:GetCommandSyntax(name)
+		if neededArgs > #args then
+			cmdError(caller, name .. " syntax: " .. syntax)
+			return false
+		end
 
-	for k, arg in next, args do
-		local argData = cmd.args[k] or (cmd.args[#cmd.args].type == ARGTYPE_VARARGS and cmd.args[#cmd.args] or nil)
-		if argData then
-			local funcArg = arg
+		for k, arg in next, args do
+			local argData = cmd.args[k] or (cmd.args[#cmd.args].type == ARGTYPE_VARARGS and cmd.args[#cmd.args] or nil)
+			if argData then
+				local funcArg = arg
 
-			if (argData.type == ARGTYPE_STRING or argData.type == ARGTYPE_VARARGS) and funcArg:Trim() == "" then
-				funcArg = nil
+				if (argData.type == ARGTYPE_STRING or argData.type == ARGTYPE_VARARGS) and funcArg:Trim() == "" then
+					funcArg = nil
 
-			elseif argData.type == ARGTYPE_NUMBER then
-				funcArg = tonumber(arg:Trim():lower())
+				elseif argData.type == ARGTYPE_NUMBER then
+					funcArg = tonumber(arg:Trim():lower())
 
-			elseif argData.type == ARGTYPE_BOOLEAN then
-				funcArg = tobool(arg:Trim():lower())
+				elseif argData.type == ARGTYPE_BOOLEAN then
+					funcArg = tobool(arg:Trim():lower())
 
-			elseif argData.type == ARGTYPE_PLAYER then
-				funcArg = mingeban.utils.findEntity(arg)[1]
+				elseif argData.type == ARGTYPE_PLAYER then
+					funcArg = mingeban.utils.findEntity(arg)[1]
 
-			elseif argData.type == ARGTYPE_PLAYERS then
-				funcArg = mingeban.utils.findEntity(arg)
+				elseif argData.type == ARGTYPE_PLAYERS then
+					funcArg = mingeban.utils.findEntity(arg)
 
-			elseif argData.type == ARGTYPE_ENTITY then
-				funcArg = mingeban.utils.findEntity(arg, false)[1]
+				elseif argData.type == ARGTYPE_ENTITY then
+					funcArg = mingeban.utils.findEntity(arg, false)[1]
 
-			elseif argData.type == ARGTYPE_ENTITIES then
-				funcArg = mingeban.utils.findEntity(arg, false)
+				elseif argData.type == ARGTYPE_ENTITIES then
+					funcArg = mingeban.utils.findEntity(arg, false)
 
-			end
-
-			if argData.filter then
-				if istable(funcArg) then
-					local newArg = {}
-					for _, arg in next, funcArg do
-						if argData.filter(arg) then
-							newArg[#newArg] = arg
-						end
-					end
-					funcArg = newArg
-				else
-					local filterRet = argData.filter(caller, funcArg)
-					funcArg = filterRet and funcArg or nil
 				end
-			end
 
-			local endsWithVarargs = args[#args] == ARGTYPE_VARARGS
-			if funcArg == nil and not endsWithVarargs then
-				cmdError(caller, syntax)
-				return false
-			end
+				if argData.filter then
+					if istable(funcArg) then
+						local newArg = {}
+						for _, arg in next, funcArg do
+							if argData.filter(arg) then
+								newArg[#newArg] = arg
+							end
+						end
+						funcArg = newArg
+					else
+						local filterRet = argData.filter(caller, funcArg)
+						funcArg = filterRet and funcArg or nil
+					end
+				end
 
-			if funcArg ~= nil then
-				args[k] = funcArg
-			elseif endsWithVarargs then
-				args[k] = args[k]
+				local endsWithVarargs = args[#args] == ARGTYPE_VARARGS
+				if funcArg == nil and not endsWithVarargs then
+					cmdError(caller, syntax)
+					return false
+				end
+
+				if funcArg ~= nil then
+					args[k] = funcArg
+				elseif endsWithVarargs then
+					args[k] = args[k]
+				else
+					args[k] = nil
+				end
 			else
 				args[k] = nil
 			end
-		else
-			args[k] = nil
 		end
 	end
 
@@ -167,7 +176,7 @@ function mingeban:RunCommand(name, caller, line)
 
 	]]
 
-	local ok, err = cmd.callback(caller, line, unpack(args))
+	local ok, err = cmd.callback(caller, line, unpack(args or {}))
 	if ok == false then
 		cmdError(caller, err)
 		return false
