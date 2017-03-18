@@ -105,7 +105,7 @@ net.Receive("mingeban-cmderror", function()
 	end)
 
 	surface.PlaySound("buttons/button2.wav")
-	if not reason then return end
+	if not reason or reason == "" then return end
 
 	notification.AddLegacy("mingeban: " .. reason, NOTIFY_ERROR, 6)
 

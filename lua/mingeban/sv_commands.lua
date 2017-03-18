@@ -59,7 +59,7 @@ local function cmdError(ply, reason)
 	end
 
 	net.Start("mingeban-cmderror")
-		if isstring(reason) then net.WriteString(reason) end
+		net.WriteString(reason or "")
 	net.Send(ply)
 end
 
