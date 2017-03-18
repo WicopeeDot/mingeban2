@@ -138,7 +138,7 @@ function mingeban:RunCommand(name, caller, line)
 
 				local endsWithVarargs = args[#args] == ARGTYPE_VARARGS
 				if funcArg == nil and not endsWithVarargs then
-					cmdError(caller, syntax)
+					cmdError(caller, name .. " syntax: " .. syntax)
 					return false
 				end
 
