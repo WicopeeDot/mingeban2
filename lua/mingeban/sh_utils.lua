@@ -129,15 +129,16 @@ function mingeban.utils.findEntity(str, plyonly)
 		end
 	end
 
-	for _, ent in next, ents.GetAll() do
-		if str:StartWith("_") and str:len() > 1 then
-			if tostring(ent:EntIndex()) == str:sub(2) then
-				if plyonly and ent:IsPlayer() or not plyonly then
-					found[#found + 1] = ent
-				end
+	if str:StartWith("_") and str:len() > 1 then
+		local ent = Entity(tonumber(str:sub(2)))
+		if ent then
+			if plyonly and ent:IsPlayer() or not plyonly then
+				found[#found + 1] = ent
 			end
 		end
+	end
 
+	for _, ent in next, ents.GetAll() do
 		if not plyonly then
 			local nonum = str:gsub("(%d+)", "")
 			if nonum == "" then
