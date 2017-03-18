@@ -185,7 +185,7 @@ function mingeban:RunCommand(name, caller, line)
 		cmdError(caller, "command lua error: " .. err)
 		return false
 	elseif ok2 == false then
-		cmdError(caller, err)
+		cmdError(caller, err2)
 		return false
 	end
 end
