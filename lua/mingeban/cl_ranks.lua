@@ -4,6 +4,8 @@ local Rank = mingeban.objects.Rank
 local function askRanks()
 	net.Start("mingeban-getranks")
 	net.SendToServer()
+
+	hook.Remove("Think", "mingeban-requestranks")
 end
 
 net.Receive("mingeban-getranks", function()
@@ -30,5 +32,5 @@ end)
 if istable(GAMEMODE) then
 	askRanks()
 end
-hook.Add("Initialize", "mingeban-requestranks", askRanks)
+hook.Add("Think", "mingeban-requestranks", askRanks)
 

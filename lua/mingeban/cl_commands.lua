@@ -51,6 +51,8 @@ end
 local function askCommands()
 	net.Start("mingeban-getcommands")
 	net.SendToServer()
+
+	hook.Remove("Think", "mingeban-requestcommands")
 end
 
 net.Receive("mingeban-getcommands", function()
@@ -94,7 +96,7 @@ end
 if istable(GAMEMODE) then
 	askCommands()
 end
-hook.Add("Initialize", "mingeban-requestcommands", askCommands)
+hook.Add("Think", "mingeban-requestcommands", askCommands)
 
 net.Receive("mingeban-cmderror", function()
 	local reason
