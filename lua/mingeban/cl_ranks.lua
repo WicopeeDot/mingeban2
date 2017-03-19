@@ -25,7 +25,6 @@ net.Receive("mingeban-getranks", function()
 
 	mingeban.ranks = ranks
 	mingeban.users = users
-
 end)
 
 if istable(GAMEMODE) then

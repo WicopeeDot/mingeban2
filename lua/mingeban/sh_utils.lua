@@ -140,19 +140,23 @@ function mingeban.utils.findEntity(str, plyonly)
 
 	for _, ent in next, ents.GetAll() do
 		if not plyonly then
+			--[[ might be needed?
+
 			local nonum = str:gsub("(%d+)", "")
 			if nonum == "" then
 				nonum = nil
 			end
-			if ent:GetClass() == "prop_physics" and nonum and ent:GetModel():match(nonum) then
-				found[#found + 1] = ent
-			end
 
+			]]
 			if ent:GetClass():match(str) then
 				found[#found + 1] = ent
 			end
 
 			if ent:GetName():match(str) then
+				found[#found + 1] = ent
+			end
+
+			if ent:GetModel():match(str) then
 				found[#found + 1] = ent
 			end
 		end
@@ -167,11 +171,12 @@ function mingeban.utils.findEntity(str, plyonly)
 	end
 
 	return found_nodupes
-
 end
 
-function mingeban.utils.accessorFunc(tbl, keyName, key, noSet)
-	if not noSet and not tbl["Set" .. keyName] then
+function mingeban.utils.accessorFunc(tbl, keyName, key, noAddSet)
+	-- noAddSet would be false for server, false for client
+	-- so no Set function will be added
+	if not noAddSet and not tbl["Set" .. keyName] then
 		tbl["Set" .. keyName] = function(self, value)
 			self[key] = value
 			return self
@@ -180,6 +185,5 @@ function mingeban.utils.accessorFunc(tbl, keyName, key, noSet)
 	tbl["Get" .. keyName] = function(self)
 		return self[key]
 	end
-
 end
 

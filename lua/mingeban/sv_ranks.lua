@@ -19,7 +19,6 @@ function mingeban:CreateRank(name, level, root)
 	}, Rank)
 	self.ranks[level] = rank
 	return rank
-
 end
 function mingeban:DeleteRank(name)
 	checkParam(name, "string", 1, "CreateRank")
@@ -28,7 +27,7 @@ function mingeban:DeleteRank(name)
 
 	for level, rank in next, self.ranks do
 		if rank:GetName() == name:lower() then
-			for sid, _ in next, rank:GetUsers() do
+			for sid, _ in next, rank.users do
 				local ply = player.GetBySteamID(sid)
 				if IsValid(ply) then
 					ply:SetNWString("UserGroup", "user")
@@ -38,7 +37,6 @@ function mingeban:DeleteRank(name)
 			break
 		end
 	end
-
 end
 
 function mingeban:InitializeRanks()
@@ -69,10 +67,16 @@ function mingeban:InitializeRanks()
 			end
 		end
 	end
-
 end
 
 util.AddNetworkString("mingeban-getranks")
+
+net.Receive("mingeban-getranks", function(_, ply)
+	net.Start("mingeban-getranks")
+		net.WriteTable(mingeban.ranks)
+		net.WriteTable(mingeban.users)
+	net.Send(ply)
+end)
 
 function mingeban:SaveRanks()
 	if not file.Exists("mingeban", "DATA") then
@@ -82,9 +86,7 @@ function mingeban:SaveRanks()
 
 	net.Start("mingeban-getranks")
 	net.Broadcast()
-
 end
-
 function mingeban:SaveUsers()
 	if not file.Exists("mingeban", "DATA") then
 		file.CreateDir("mingeban")
@@ -95,16 +97,7 @@ function mingeban:SaveUsers()
 
 	net.Start("mingeban-getranks")
 	net.Broadcast()
-
 end
-
-net.Receive("mingeban-getranks", function(_, ply)
-	net.Start("mingeban-getranks")
-		net.WriteTable(mingeban.ranks)
-		net.WriteTable(mingeban.users)
-	net.Send(ply)
-
-end)
 
 local PLAYER = FindMetaTable("Player")
 
@@ -126,7 +119,6 @@ hook.Add("PlayerInitialSpawn", "mingeban-ranks", function(ply)
 			end
 		end
 	end
-
 end)
 
 mingeban:InitializeRanks()

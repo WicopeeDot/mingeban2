@@ -18,7 +18,7 @@ function mingeban.ConsoleAutoComplete(_, args)
 			local curArg = argsTbl[#argsTbl]
 			local argData = cmdData.args[#argsTbl]
 			if argData then
-				if argData:GetType() == ARGTYPE_PLAYER then
+				if argData.type == ARGTYPE_PLAYER then
 					for _, ply in next, player.GetAll() do
 						if ('"' .. ply:Nick() .. '"'):lower():match(curArg) then
 							autoComplete[#autoComplete + 1] = '"' .. ply:Nick() .. '"' -- autocomplete nick
@@ -46,24 +46,6 @@ function mingeban.ConsoleAutoComplete(_, args)
 	end
 
 	return autoComplete
-
-end
-
-concommand.Add("mingeban", function(ply, _, cmd, args)
-	local cmd = cmd[1]
-	if not cmd then return end
-
-	local args = args:sub(cmd:len() + 2):Trim()
-
-	net.Start("mingeban-runcommand")
-		net.WriteString(cmd)
-		net.WriteString(args)
-	net.SendToServer()
-
-end, mingeban.ConsoleAutoComplete)
-
-for _, file in next, (file.Find("mingeban/commands/*.lua", "LUA")) do
-	include("mingeban/commands/" .. file)
 end
 
 local function askCommands()
@@ -90,8 +72,24 @@ net.Receive("mingeban-getcommands", function()
 	end
 
 	mingeban.commands = commands
-
 end)
+
+concommand.Add("mingeban", function(ply, _, cmd, args)
+	local cmd = cmd[1]
+	if not cmd then return end
+
+	local args = args:sub(cmd:len() + 2):Trim()
+
+	net.Start("mingeban-runcommand")
+		net.WriteString(cmd)
+		net.WriteString(args)
+	net.SendToServer()
+
+end, mingeban.ConsoleAutoComplete)
+
+for _, file in next, (file.Find("mingeban/commands/*.lua", "LUA")) do
+	include("mingeban/commands/" .. file)
+end
 
 if istable(GAMEMODE) then
 	askCommands()
@@ -108,6 +106,5 @@ net.Receive("mingeban-cmderror", function()
 	if not reason or reason == "" then return end
 
 	notification.AddLegacy("mingeban: " .. reason, NOTIFY_ERROR, 6)
-
 end)
 
