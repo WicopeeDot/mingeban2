@@ -94,7 +94,7 @@ end
 if istable(GAMEMODE) then
 	askCommands()
 end
-hook.Add("Initialize", "mingeban-requestcommands", askRanks)
+hook.Add("Initialize", "mingeban-requestcommands", askCommands)
 
 net.Receive("mingeban-cmderror", function()
 	local reason
