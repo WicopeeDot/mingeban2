@@ -12,6 +12,7 @@ local function registerCommand(name, callback)
 	mingeban.commands[name] = setmetatable({
 		callback = callback, -- caller, line, ...
 		args = {},
+		name = name,
 	}, Command)
 	return mingeban.commands[name]
 end
@@ -30,7 +31,7 @@ function mingeban.CreateCommand(name, callback)
 
 		local func = net.Receivers["mingeban-getcommands"]
 		if func then
-			func(_, player.GetAll())
+			func(nil, player.GetAll())
 		end
 		return cmd
 	else
@@ -40,7 +41,7 @@ function mingeban.CreateCommand(name, callback)
 
 		local func = net.Receivers["mingeban-getcommands"]
 		if func then
-			func(_, player.GetAll())
+			func(nil, player.GetAll())
 		end
 		return cmd
 	end
@@ -73,7 +74,7 @@ function mingeban:RunCommand(name, caller, line)
 		return false
 	end
 
-	if type(caller) == "Player" and not caller:GetRank():GetPermission("command." .. name) and not caller:GetRank():GetRoot() then
+	if type(caller) == "Player" and not caller:GetRank():GetPermission("command." .. cmd.name) and not caller:GetRank():GetRoot() then
 		cmdError(caller, "Insufficient permissions.")
 		return false
 	end
@@ -238,6 +239,8 @@ end)
 
 concommand.Add("mingeban", function(ply, _, cmd, args)
 	local cmd = cmd[1]
+	if not cmd then return end
+
 	local args = args:sub(cmd:len() + 2):Trim()
 	mingeban:RunCommand(cmd, ply, args)
 
