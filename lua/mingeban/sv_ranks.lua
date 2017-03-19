@@ -44,7 +44,10 @@ end
 function mingeban:InitializeRanks()
 	local ranks = util.JSONToTable(file.Read("mingeban/ranks.txt", "DATA") or "{}")
 	for level, rank in next, ranks do
-		mingeban:CreateRank(rank.name, rank.level, rank.root)
+		local restoredRank = mingeban:CreateRank(rank.name, rank.level, rank.root)
+		for permission, _ in next, rank.permissions do
+			restoredRank:AddPermission(permission)
+		end
 	end
 	self.users = util.JSONToTable(file.Read("mingeban/users.txt", "DATA") or "{}")
 
