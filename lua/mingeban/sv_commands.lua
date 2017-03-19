@@ -74,7 +74,16 @@ function mingeban:RunCommand(name, caller, line)
 		return false
 	end
 
-	if type(caller) == "Player" and not caller:GetRank():GetPermission("command." .. cmd.name) and not caller:GetRank():GetRoot() then
+	local hasPermission = caller:GetRank():GetPermission("command." .. cmd.name)
+	if not hasPermission then -- retard proofing, kinda ugly
+		for alias, aliasCmd in next, self.commands do
+			if aliasCmd.name == cmd.name then
+				hasPermission = caller:GetRank():GetPermission("command." .. alias)
+				if hasPermission then break end
+			end
+		end
+	end
+	if type(caller) == "Player" and not hasPermission and not caller:GetRank():GetRoot() then
 		cmdError(caller, "Insufficient permissions.")
 		return false
 	end

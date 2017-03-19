@@ -49,6 +49,8 @@ function mingeban:InitializeRanks()
 	self.users = util.JSONToTable(file.Read("mingeban/users.txt", "DATA") or "{}")
 
 	if table.Count(self.ranks) < 1 then
+		MsgC(Color(255, 255, 127), "[mingeban] ") MsgC(Color(255, 255, 255), "Reset ranks as we don't have any saved..?")
+
 		mingeban:CreateRank("superadmin", 255, true)
 		mingeban:CreateRank("user", 1, false)
 
