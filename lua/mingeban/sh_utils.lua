@@ -156,7 +156,7 @@ function mingeban.utils.findEntity(str, plyonly)
 				found[#found + 1] = ent
 			end
 
-			if ent:GetModel():match(str) then
+			if ent.GetModel and isstring(ent:GetModel()) and ent:GetModel():match(str) then
 				found[#found + 1] = ent
 			end
 		end
