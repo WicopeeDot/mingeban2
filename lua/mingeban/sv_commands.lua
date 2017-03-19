@@ -74,10 +74,10 @@ function mingeban:RunCommand(name, caller, line)
 		return false
 	end
 
-	local hasPermission = caller:GetRank():GetPermission("command." .. cmd.name)
+	local hasPermission = caller:GetRank():GetPermission("command." .. cmd:GetName())
 	if not hasPermission then -- retard proofing, kinda ugly
 		for alias, aliasCmd in next, self.commands do
-			if aliasCmd.name == cmd.name then
+			if aliasCmd:GetName() == cmd:GetName() then
 				hasPermission = caller:GetRank():GetPermission("command." .. alias)
 				if hasPermission then break end
 			end
@@ -94,7 +94,7 @@ function mingeban:RunCommand(name, caller, line)
 
 		local neededArgs = 0
 		for _, arg in next, cmd.args do
-			if not arg.optional and arg.type ~= ARGTYPE_VARARGS then neededArgs = neededArgs + 1 end
+			if not arg:GetOptional() and arg:GetType() ~= ARGTYPE_VARARGS then neededArgs = neededArgs + 1 end
 		end
 
 		local syntax = mingeban:GetCommandSyntax(name)
@@ -104,44 +104,44 @@ function mingeban:RunCommand(name, caller, line)
 		end
 
 		for k, arg in next, args do
-			local argData = cmd.args[k] or (cmd.args[#cmd.args].type == ARGTYPE_VARARGS and cmd.args[#cmd.args] or nil)
+			local argData = cmd.args[k] or (cmd.args[#cmd.args]:GetType() == ARGTYPE_VARARGS and cmd.args[#cmd.args] or nil)
 			if argData then
 				local funcArg = arg
 
-				if (argData.type == ARGTYPE_STRING or argData.type == ARGTYPE_VARARGS) and funcArg:Trim() == "" then
+				if (argData:GetType() == ARGTYPE_STRING or argData:GetType() == ARGTYPE_VARARGS) and funcArg:Trim() == "" then
 					funcArg = nil
 
-				elseif argData.type == ARGTYPE_NUMBER then
+				elseif argData:GetType() == ARGTYPE_NUMBER then
 					funcArg = tonumber(arg:Trim():lower())
 
-				elseif argData.type == ARGTYPE_BOOLEAN then
+				elseif argData:GetType() == ARGTYPE_BOOLEAN then
 					funcArg = tobool(arg:Trim():lower())
 
-				elseif argData.type == ARGTYPE_PLAYER then
+				elseif argData:GetType() == ARGTYPE_PLAYER then
 					funcArg = mingeban.utils.findEntity(arg)[1]
 
-				elseif argData.type == ARGTYPE_PLAYERS then
+				elseif argData:GetType() == ARGTYPE_PLAYERS then
 					funcArg = mingeban.utils.findEntity(arg)
 
-				elseif argData.type == ARGTYPE_ENTITY then
+				elseif argData:GetType() == ARGTYPE_ENTITY then
 					funcArg = mingeban.utils.findEntity(arg, false)[1]
 
-				elseif argData.type == ARGTYPE_ENTITIES then
+				elseif argData:GetType() == ARGTYPE_ENTITIES then
 					funcArg = mingeban.utils.findEntity(arg, false)
 
 				end
 
-				if argData.filter then
+				if argData:GetFilter() then
 					if istable(funcArg) then
 						local newArg = {}
 						for _, arg in next, funcArg do
-							if argData.filter(arg) then
+							if argData:GetFilter()(arg) then
 								newArg[#newArg] = arg
 							end
 						end
 						funcArg = newArg
 					else
-						local filterRet = argData.filter(caller, funcArg)
+						local filterRet = argData:GetFilter()(caller, funcArg)
 						funcArg = filterRet and funcArg or nil
 					end
 				end

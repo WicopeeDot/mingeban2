@@ -50,6 +50,7 @@ if SERVER then
 
 	end
 end
+accessorFunc(Command, "Name", "name", false) -- no don't touch that
 accessorFunc(Command, "Help", "help", CLIENT) -- to use in future help command or something
 
 mingeban.objects.Command = Command
@@ -61,14 +62,14 @@ function mingeban:GetCommandSyntax(name)
 	local str = ""
 	for k, arg in next, cmd.args do
 		local brStart, brEnd
-		if arg.optional or arg.type == ARGTYPE_VARARGS then
+		if arg:GetOptional() or arg:GetType() == ARGTYPE_VARARGS then
 			brStart = "["
 			brEnd = "]"
 		else
 			brStart = "<"
 			brEnd = ">"
 		end
-		str = str .. brStart .. (arg.name and arg.name .. ":" or "") .. types[arg.type] .. brEnd .. " "
+		str = str .. brStart .. (arg:GetName() and arg:GetName() .. ":" or "") .. types[arg:GetType()] .. brEnd .. " "
 	end
 
 	return str

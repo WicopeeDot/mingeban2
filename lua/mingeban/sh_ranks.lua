@@ -101,7 +101,7 @@ function Rank:GetPermission(perm)
 	return self.permissions[perm]
 end
 function Rank:GetPermissions()
-	return self.root or self.permissions[perm]
+	return self.root or self.permissions
 end
 function Rank:GetUser(sid)
 	if type(sid) == "Player" and not sid:IsBot() then
