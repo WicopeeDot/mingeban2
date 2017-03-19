@@ -50,6 +50,7 @@ if SERVER then
 
 	end
 end
+accessorFunc(Command, "Help", "help", CLIENT) -- to use in future help command or something
 
 mingeban.objects.Command = Command
 
