@@ -216,11 +216,6 @@ testargsCmd:AddArgument(ARGTYPE_PLAYER)
 testargsCmd:AddArgument(ARGTYPE_PLAYERS)
 testargsCmd:AddArgument(ARGTYPE_VARARGS)
 
-for _, file in next, (file.Find("mingeban/commands/*.lua", "LUA")) do
-	AddCSLuaFile("mingeban/commands/" .. file)
-	include("mingeban/commands/" .. file)
-end
-
 -- networking
 
 util.AddNetworkString("mingeban-getcommands")
@@ -252,6 +247,11 @@ concommand.Add("mingeban", function(ply, _, cmd, args)
 	local args = args:sub(cmd:len() + 2):Trim()
 	mingeban:RunCommand(cmd, ply, args)
 end)
+
+for _, file in next, (file.Find("mingeban/commands/*.lua", "LUA")) do
+	AddCSLuaFile("mingeban/commands/" .. file)
+	include("mingeban/commands/" .. file)
+end
 
 hook.Add("PlayerSay", "mingeban-commands", function(ply, txt)
 	local prefix = txt:match(mingeban.utils.CmdPrefix)
