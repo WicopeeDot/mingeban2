@@ -96,6 +96,8 @@ function mingeban.utils.findEntity(str, plyonly)
 			for _, ply in next, players do
 				found[#found + 1] = ply
 			end
+		elseif tag == "me" then
+			found[#found + 1] = mingeban.CurrentPlayer
 		elseif tag:StartWith("rank:") and tag:len() > 4 then
 			local rank = tag:sub(4):lower()
 			for _, ply in next, players do

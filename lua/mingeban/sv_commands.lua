@@ -102,6 +102,8 @@ function mingeban:RunCommand(name, caller, line)
 			return false
 		end
 
+		mingeban.CurrentPlayer = caller
+
 		for k, arg in next, args do
 			local argData = cmd.args[k] or (cmd.args[#cmd.args].type == ARGTYPE_VARARGS and cmd.args[#cmd.args] or nil)
 			if argData then
@@ -190,6 +192,9 @@ function mingeban:RunCommand(name, caller, line)
 	local ok, err = pcall(function()
 		ok2, err2 = cmd.callback(caller, line, unpack(args or {}))
 	end)
+
+	mingeban.CurrentPlayer = nil
+
 	if not ok then
 		cmdError(caller, "command lua error: " .. err)
 		return false
