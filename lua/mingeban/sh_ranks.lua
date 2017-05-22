@@ -38,12 +38,13 @@ if SERVER then
 	end
 
 	function Rank:AddUser(sid)
-		if type(sid) == "Player" and not sid:IsBot() then
+		if type(sid) == "Player" then
+			assert(sid:IsBot(), "bad argument #1 to 'AddUser' (Player expected, got BOT)")
 			sid:SetNWString("UserGroup", self.name)
 			sid = sid:SteamID()
 		end
 		checkParam(sid, "string", 1, "AddUser")
-		assert(sid:match("STEAM_0:%d:%d+"), "bad argument #1 to 'AddUser' (steamid expected, got something else)")
+		assert(sid:match("STEAM_0:%d:%d+"), "bad argument #1 to 'AddUser' (SteamID32 expected, got something else)")
 
 		for group, plys in next, mingeban.users do
 			if plys[sid] then
