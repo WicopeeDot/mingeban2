@@ -39,7 +39,7 @@ if SERVER then
 
 	function Rank:AddUser(sid)
 		if type(sid) == "Player" then
-			assert(sid:IsBot(), "bad argument #1 to 'AddUser' (Player expected, got BOT)")
+			assert(not sid:IsBot(), "bad argument #1 to 'AddUser' (Player expected, got BOT)")
 			sid:SetNWString("UserGroup", self.name)
 			sid = sid:SteamID()
 		end
