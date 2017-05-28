@@ -46,6 +46,7 @@ function mingeban.CreateCommand(name, callback)
 		return cmd
 	end
 end
+mingeban.AddCommand = mingeban.CreateCommand
 
 -- command handling
 
@@ -63,12 +64,14 @@ local function cmdError(ply, reason)
 	net.Send(ply)
 end
 
-function mingeban:RunCommand(name, caller, line)
+local mingeban_unknowncmd_notify = CreateConVar("mingeban_unknowncmd_notify", "0", { FCVAR_ARCHIVE })
+function mingeban.RunCommand(name, caller, line)
 	checkParam(name, "string", 1, "RunCommand")
 	checkParam(line, "string", 3, "RunCommand")
 
+	local self = mingeban
 	local cmd = self.commands[name]
-	if not cmd then
+	if mingeban_unknowncmd_notify:GetBool() and not cmd then
 		cmdError(caller, "Unknown command.")
 		return false
 	end
@@ -203,6 +206,7 @@ function mingeban:RunCommand(name, caller, line)
 		return false
 	end
 end
+mingeban.CallCommand = mingeban.RunCommand
 
 -- load commands
 
@@ -242,7 +246,7 @@ util.AddNetworkString("mingeban-runcommand")
 net.Receive("mingeban-runcommand", function(_, ply)
 	local cmd = net.ReadString()
 	local args = net.ReadString()
-	mingeban:RunCommand(cmd, ply, args)
+	mingeban.RunCommand(cmd, ply, args)
 end)
 
 concommand.Add("mingeban", function(ply, _, cmd, args)
@@ -250,7 +254,7 @@ concommand.Add("mingeban", function(ply, _, cmd, args)
 	if not cmd then return end
 
 	local args = args:sub(cmd:len() + 2):Trim()
-	mingeban:RunCommand(cmd, ply, args)
+	mingeban.RunCommand(cmd, ply, args)
 end)
 
 for _, file in next, (file.Find("mingeban/commands/*.lua", "LUA")) do
@@ -267,7 +271,7 @@ hook.Add("PlayerSay", "mingeban-commands", function(ply, txt)
 
 		local args = txt:sub(prefix:len() + 1 + cmd:len() + 1)
 
-		mingeban:RunCommand(cmd, ply, args)
+		mingeban.RunCommand(cmd, ply, args)
 	end
 end)
 
