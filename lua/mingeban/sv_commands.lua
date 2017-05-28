@@ -69,8 +69,7 @@ function mingeban.RunCommand(name, caller, line)
 	checkParam(name, "string", 1, "RunCommand")
 	checkParam(line, "string", 3, "RunCommand")
 
-	local self = mingeban
-	local cmd = self.commands[name]
+	local cmd = mingeban.commands[name]
 	if mingeban_unknowncmd_notify:GetBool() and not cmd then
 		cmdError(caller, "Unknown command.")
 		return false
@@ -78,7 +77,7 @@ function mingeban.RunCommand(name, caller, line)
 
 	local hasPermission = caller:GetRank().permissions["command." .. cmd:GetName()]
 	if not hasPermission then -- retard proofing, kinda ugly
-		for alias, aliasCmd in next, self.commands do
+		for alias, aliasCmd in next, mingeban.commands do
 			if aliasCmd.name == cmd.name then
 				hasPermission = caller:GetRank().permissions["command." .. alias]
 				if hasPermission then break end
@@ -92,7 +91,7 @@ function mingeban.RunCommand(name, caller, line)
 
 	local args
 	if #cmd.args > 0 then
-		args = self.utils.parseArgs(line)
+		args = mingeban.utils.parseArgs(line)
 
 		local neededArgs = 0
 		for _, arg in next, cmd.args do
