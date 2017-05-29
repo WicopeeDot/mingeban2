@@ -78,7 +78,7 @@ function mingeban.RunCommand(name, caller, line)
 	end
 
 	local hasPermission = caller:GetRank().permissions["command." .. cmd:GetName()]
-	if not hasPermission then -- retard proofing, kinda ugly
+	if not hasPermission then -- kinda ugly
 		for alias, aliasCmd in next, mingeban.commands do
 			if aliasCmd.name == cmd.name then
 				hasPermission = caller:GetRank().permissions["command." .. alias]
