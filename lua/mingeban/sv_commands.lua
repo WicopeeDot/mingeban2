@@ -70,8 +70,10 @@ function mingeban.RunCommand(name, caller, line)
 	checkParam(line, "string", 3, "RunCommand")
 
 	local cmd = mingeban.commands[name]
-	if mingeban_unknowncmd_notify:GetBool() and not cmd then
-		cmdError(caller, "Unknown command.")
+	if not cmd then
+		if mingeban_unknowncmd_notify:GetBool() then
+			cmdError(caller, "Unknown command.")
+		end
 		return false
 	end
 
