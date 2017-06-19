@@ -77,18 +77,20 @@ function mingeban.RunCommand(name, caller, line)
 		return false
 	end
 
-	local hasPermission = caller:GetRank().permissions["command." .. cmd:GetName()]
-	if not hasPermission then -- kinda ugly
-		for alias, aliasCmd in next, mingeban.commands do
-			if aliasCmd.name == cmd.name then
-				hasPermission = caller:GetRank().permissions["command." .. alias]
-				if hasPermission then break end
+	if IsValid(caller) then
+		local hasPermission = caller:GetRank().permissions["command." .. cmd:GetName()]
+		if not hasPermission then -- kinda ugly
+			for alias, aliasCmd in next, mingeban.commands do
+				if aliasCmd.name == cmd.name then
+					hasPermission = caller:GetRank().permissions["command." .. alias]
+					if hasPermission then break end
+				end
 			end
 		end
-	end
-	if type(caller) == "Player" and not hasPermission and not caller:GetRank().root then
-		cmdError(caller, "Insufficient permissions.")
-		return false
+		if type(caller) == "Player" and not hasPermission and not caller:GetRank().root then
+			cmdError(caller, "Insufficient permissions.")
+			return false
+		end
 	end
 
 	local args
