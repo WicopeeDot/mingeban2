@@ -16,16 +16,16 @@ if SERVER then
 		self.level = level
 		mingeban.ranks[level] = self
 
-		mingeban:SaveRanks()
+		mingeban.SaveRanks()
 		return self
 	end
 	function Rank:SetName(name)
 		checkParam(name, "string", 1, "SetName")
-		assert(not istable(mingeban:GetRank(name)), "rank with name " .. name .. " already exists!")
+		assert(not istable(mingeban.GetRank(name)), "rank with name " .. name .. " already exists!")
 
 		self.name = name
 
-		mingeban:SaveRanks()
+		mingeban.SaveRanks()
 		return self
 	end
 	function Rank:SetRoot(root)
@@ -33,7 +33,7 @@ if SERVER then
 
 		self.root = root
 
-		mingeban:SaveRanks()
+		mingeban.SaveRanks()
 		return self
 	end
 
@@ -56,7 +56,7 @@ if SERVER then
 		end
 		mingeban.users[self.name][sid] = true
 
-		mingeban:SaveUsers()
+		mingeban.SaveUsers()
 		return self
 	end
 	function Rank:RemoveUser(sid)
@@ -72,7 +72,7 @@ if SERVER then
 		end
 		mingeban.users[self.name][sid] = nil
 
-		mingeban:SaveUsers()
+		mingeban.SaveUsers()
 		return self
 	end
 
@@ -81,7 +81,7 @@ if SERVER then
 
 		self.permissions[perm] = true
 
-		mingeban:SaveRanks()
+		mingeban.SaveRanks()
 		return self
 	end
 	function Rank:RemovePermission(perm)
@@ -89,7 +89,7 @@ if SERVER then
 
 		self.permissions[perm] = nil
 
-		mingeban:SaveRanks()
+		mingeban.SaveRanks()
 		return self
 	end
 end
@@ -129,20 +129,20 @@ mingeban.objects.Rank = Rank
 
 -- Rank object defined.
 
-function mingeban:GetRank(name)
+function mingeban.GetRank(name)
 	checkParam(name, "string", 1, "GetRank")
 
-	for level, rank in next, self.ranks do
+	for level, rank in next, mingeban.ranks do
 		if rank.name == name:lower() then
-			return self.ranks[level]
+			return mingeban.ranks[level]
 		end
 	end
 
 end
-function mingeban:GetRanks()
+function mingeban.GetRanks()
 	return mingeban.ranks
 end
-function mingeban:GetUsers()
+function mingeban.GetUsers()
 	return mingeban.users
 end
 
@@ -153,10 +153,10 @@ local PLAYER = FindMetaTable("Player")
 function PLAYER:CheckUserGroupLevel(name)
 	checkParam(name, "string", 1, "CheckUserGroupLevel")
 
-	local plyRank = mingeban:GetRank(self:GetUserGroup())
+	local plyRank = mingeban.GetRank(self:GetUserGroup())
 	if plyRank.level then return true end
 
-	local rank = mingeban:GetRank(name)
+	local rank = mingeban.GetRank(name)
 	if not rank then return true end
 
 	if plyRank.level < rank.level then
@@ -166,7 +166,7 @@ function PLAYER:CheckUserGroupLevel(name)
 	end
 end
 function PLAYER:GetRank(name)
-	return mingeban:GetRank(self:GetUserGroup())
+	return mingeban.GetRank(self:GetUserGroup())
 end
 function PLAYER:IsUserGroup(name)
 	checkParam(name, "string", 1, "IsUserGroup")

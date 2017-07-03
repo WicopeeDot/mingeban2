@@ -60,8 +60,8 @@ mingeban.objects.Command = Command
 
 -- Command object defined.
 
-function mingeban:GetCommandSyntax(name)
-	local cmd = self.commands[name]
+function mingeban.GetCommandSyntax(name)
+	local cmd = mingeban.commands[name]
 	if not cmd then return end
 
 	local str = ""
@@ -80,12 +80,12 @@ function mingeban:GetCommandSyntax(name)
 	return str
 end
 
-function mingeban:GetCommand(name)
+function mingeban.GetCommand(name)
 	checkParam(name, "string", 1, "GetCommand")
 
 	return mingeban.commands[name]
 end
-function mingeban:GetCommands()
+function mingeban.GetCommands()
 	return mingeban.commands
 end
 

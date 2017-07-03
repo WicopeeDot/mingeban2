@@ -3,13 +3,13 @@ local checkParam = mingeban.utils.checkParam
 
 local Rank = mingeban.objects.Rank
 
-function mingeban:CreateRank(name, level, root)
+function mingeban.CreateRank(name, level, root)
 	checkParam(name, "string", 1, "CreateRank")
 	checkParam(level, "number", 2, "CreateRank")
 	checkParam(root, "boolean", 3, "CreateRank")
 
 	assert(not istable(mingeban.ranks[level]), "rank with level " .. tostring(level) .. " already exists!")
-	assert(not istable(mingeban:GetRank(name)), "rank with name " .. name .. " already exists!")
+	assert(not istable(mingeban.GetRank(name)), "rank with name " .. name .. " already exists!")
 
 	local rank = setmetatable({
 		level = level,
@@ -17,15 +17,15 @@ function mingeban:CreateRank(name, level, root)
 		root = root,
 		permissions = {}
 	}, Rank)
-	self.ranks[level] = rank
+	mingeban.ranks[level] = rank
 	return rank
 end
-function mingeban:DeleteRank(name)
+function mingeban.DeleteRank(name)
 	checkParam(name, "string", 1, "CreateRank")
 
-	assert(istable(mingeban:GetRank(name)), "rank with name " .. name .. " doesn't exist!")
+	assert(istable(mingeban.GetRank(name)), "rank with name " .. name .. " doesn't exist!")
 
-	for level, rank in next, self.ranks do
+	for level, rank in next, mingeban.ranks do
 		if rank:GetName() == name:lower() then
 			for sid, _ in next, rank.users do
 				local ply = player.GetBySteamID(sid)
@@ -33,33 +33,33 @@ function mingeban:DeleteRank(name)
 					ply:SetNWString("UserGroup", "user")
 				end
 			end
-			self.ranks[level] = nil
+			mingeban.ranks[level] = nil
 			break
 		end
 	end
 end
 
-function mingeban:InitializeRanks()
+function mingeban.InitializeRanks()
 	local ranks = util.JSONToTable(file.Read("mingeban/ranks.txt", "DATA") or "{}")
 	for level, rank in next, ranks do
-		local restoredRank = mingeban:CreateRank(rank.name, rank.level, rank.root)
+		local restoredRank = mingeban.CreateRank(rank.name, rank.level, rank.root)
 		for permission, _ in next, rank.permissions do
 			restoredRank:AddPermission(permission)
 		end
 	end
-	self.users = util.JSONToTable(file.Read("mingeban/users.txt", "DATA") or "{}")
+	mingeban.users = util.JSONToTable(file.Read("mingeban/users.txt", "DATA") or "{}")
 
-	if table.Count(self.ranks) < 1 then
+	if table.Count(mingeban.ranks) < 1 then
 		MsgC(Color(255, 255, 127), "[mingeban] ") MsgC(Color(255, 255, 255), "Reset ranks as we don't have any saved..?")
 
-		mingeban:CreateRank("superadmin", 255, true)
-		mingeban:CreateRank("user", 1, false)
+		mingeban.CreateRank("superadmin", 255, true)
+		mingeban.CreateRank("user", 1, false)
 
-		self:SaveRanks()
-		self:SaveUsers()
+		mingeban.SaveRanks()
+		mingeban.SaveUsers()
 	end
 
-	for group, plys in next, self.users do
+	for group, plys in next, mingeban.users do
 		for sid, _ in next, plys do
 			local ply = player.GetBySteamID(sid)
 			if IsValid(ply) then
@@ -78,20 +78,20 @@ net.Receive("mingeban-getranks", function(_, ply)
 	net.Send(ply)
 end)
 
-function mingeban:SaveRanks()
+function mingeban.SaveRanks()
 	if not file.Exists("mingeban", "DATA") then
 		file.CreateDir("mingeban")
 	end
-	file.Write("mingeban/ranks.txt", util.TableToJSON(self.ranks))
+	file.Write("mingeban/ranks.txt", util.TableToJSON(mingeban.ranks))
 
 	net.Start("mingeban-getranks")
 	net.Broadcast()
 end
-function mingeban:SaveUsers()
+function mingeban.SaveUsers()
 	if not file.Exists("mingeban", "DATA") then
 		file.CreateDir("mingeban")
 	end
-	local users = table.Copy(self.users)
+	local users = table.Copy(mingeban.users)
 	users.user = nil
 	file.Write("mingeban/users.txt", util.TableToJSON(users))
 
@@ -102,7 +102,7 @@ end
 local PLAYER = FindMetaTable("Player")
 
 function PLAYER:SetUserGroup(name)
-	local rank = mingeban:GetRank(name)
+	local rank = mingeban.GetRank(name)
 	assert(rank, "rank '" .. name .. "' doesn't exist!")
 
 	rank:AddUser(self)
@@ -121,5 +121,5 @@ hook.Add("PlayerInitialSpawn", "mingeban-ranks", function(ply)
 	end
 end)
 
-mingeban:InitializeRanks()
+mingeban.InitializeRanks()
 

@@ -42,7 +42,7 @@ function mingeban.ConsoleAutoComplete(_, args)
 	end
 
 	if table.Count(autoComplete) <= 0 then -- no suggestions? print syntax
-		autoComplete[1] = mingeban.commands[cmd] and "mingeban " .. (cmd or "") .. ((" " .. mingeban:GetCommandSyntax(cmd)) or "")
+		autoComplete[1] = mingeban.commands[cmd] and "mingeban " .. (cmd or "") .. ((" " .. mingeban.GetCommandSyntax(cmd)) or "")
 	end
 
 	return autoComplete

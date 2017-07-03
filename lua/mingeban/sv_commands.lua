@@ -102,7 +102,7 @@ function mingeban.RunCommand(name, caller, line)
 			if not arg.optional and arg.type ~= ARGTYPE_VARARGS then neededArgs = neededArgs + 1 end
 		end
 
-		local syntax = mingeban:GetCommandSyntax(name)
+		local syntax = mingeban.GetCommandSyntax(name)
 		if neededArgs > #args then
 			cmdError(caller, name .. " syntax: " .. syntax)
 			return false
