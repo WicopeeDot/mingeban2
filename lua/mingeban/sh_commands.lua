@@ -15,7 +15,7 @@ ARGTYPE_ENTITY   = 6
 ARGTYPE_ENTITIES = 7
 ARGTYPE_VARARGS  = 8
 
-mingeban.argTypesStrings = {
+local types = {
 	[ARGTYPE_STRING]   = "string",
 	[ARGTYPE_NUMBER]   = "number",
 	[ARGTYPE_BOOLEAN]  = "boolean",
@@ -25,7 +25,6 @@ mingeban.argTypesStrings = {
 	[ARGTYPE_ENTITIES] = "entities",
 	[ARGTYPE_VARARGS]  = "varargs"
 }
-local types = mingeban.argTypesStrings
 
 local Argument = {}
 Argument.__index = Argument
