@@ -108,7 +108,7 @@ function Rank:GetUser(sid)
 		return mingeban.users[self.name][sid:SteamID()] and sid or false
 	else
 		checkParam(sid, "string", 1, "GetUser")
-		assert(sid:match("STEAM_0:%d:%d+"), "bad argument #1 to 'GetUser' (steamid expected, got something else)")
+		assert(sid:Trim():match("^STEAM_0:%d:%d+$"), "bad argument #1 to 'GetUser' (invalid SteamID)")
 
 		local ply = player.GetBySteamID(sid)
 		if not IsValid(ply) then

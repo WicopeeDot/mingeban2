@@ -22,7 +22,6 @@ function mingeban.CreateRank(name, level, root)
 end
 function mingeban.DeleteRank(name)
 	checkParam(name, "string", 1, "CreateRank")
-
 	assert(istable(mingeban.GetRank(name)), "rank with name " .. name .. " doesn't exist!")
 
 	for level, rank in next, mingeban.ranks do
@@ -50,7 +49,7 @@ function mingeban.InitializeRanks()
 	mingeban.users = util.JSONToTable(file.Read("mingeban/users.txt", "DATA") or "{}")
 
 	if table.Count(mingeban.ranks) < 1 then
-		MsgC(Color(255, 255, 127), "[mingeban] ") MsgC(Color(255, 255, 255), "Reset ranks as we don't have any saved..?")
+		mingeban.utils.print(mingeban.colors.Yellow, "Reset ranks as we don't have any saved..?")
 
 		mingeban.CreateRank("superadmin", 255, true)
 		mingeban.CreateRank("user", 1, false)
@@ -69,14 +68,20 @@ function mingeban.InitializeRanks()
 	end
 end
 
+-- networking
+
 util.AddNetworkString("mingeban-getranks")
 
-net.Receive("mingeban-getranks", function(_, ply)
+function mingeban.NetworkRanks(ply)
 	net.Start("mingeban-getranks")
 		net.WriteTable(mingeban.ranks)
 		net.WriteTable(mingeban.users)
-	net.Send(ply)
-end)
+	if ply then
+		net.Send(ply)
+	else
+		net.Broadcast()
+	end
+end
 
 function mingeban.SaveRanks()
 	if not file.Exists("mingeban", "DATA") then
@@ -84,8 +89,7 @@ function mingeban.SaveRanks()
 	end
 	file.Write("mingeban/ranks.txt", util.TableToJSON(mingeban.ranks))
 
-	net.Start("mingeban-getranks")
-	net.Broadcast()
+	mingeban.NetworkRanks()
 end
 function mingeban.SaveUsers()
 	if not file.Exists("mingeban", "DATA") then
@@ -95,8 +99,7 @@ function mingeban.SaveUsers()
 	users.user = nil
 	file.Write("mingeban/users.txt", util.TableToJSON(users))
 
-	net.Start("mingeban-getranks")
-	net.Broadcast()
+	mingeban.NetworkRanks()
 end
 
 local PLAYER = FindMetaTable("Player")
@@ -119,7 +122,10 @@ hook.Add("PlayerInitialSpawn", "mingeban-ranks", function(ply)
 			end
 		end
 	end
+
+	mingeban.NetworkRanks(ply)
 end)
 
-mingeban.InitializeRanks()
-
+hook.Add("Initialize", "mingeban-initranks", function()
+	mingeban.InitializeRanks()
+end)

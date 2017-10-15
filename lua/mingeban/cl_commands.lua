@@ -48,23 +48,11 @@ function mingeban.ConsoleAutoComplete(_, args)
 	return autoComplete
 end
 
-local function askCommands()
-	net.Start("mingeban-getcommands")
-	net.SendToServer()
-
-	hook.Remove("Think", "mingeban-requestcommands")
-end
-
 net.Receive("mingeban-getcommands", function()
 	local commands
 	local succ = pcall(function()
 		commands = net.ReadTable()
 	end)
-
-	if not istable(commands) then
-		askCommands()
-		return
-	end
 
 	for name, cmd in next, commands do
 		for k, arg in next, cmd.args do
@@ -92,11 +80,6 @@ end, mingeban.ConsoleAutoComplete)
 for _, file in next, (file.Find("mingeban/commands/*.lua", "LUA")) do
 	include("mingeban/commands/" .. file)
 end
-
-if istable(GAMEMODE) then
-	askCommands()
-end
-hook.Add("Think", "mingeban-requestcommands", askCommands)
 
 net.Receive("mingeban-cmderror", function()
 	local reason

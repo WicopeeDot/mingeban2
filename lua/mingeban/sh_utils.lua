@@ -1,5 +1,15 @@
 
 mingeban.utils = {}
+mingeban.colors = {
+	Cyan = Color(127, 255, 255),
+	Green = Color(127, 255, 127),
+	Red = Color(255, 127, 127),
+	Yellow = Color(255, 255, 127)
+}
+
+function mingeban.utils.print(color, ...)
+	MsgC(color, "[mingeban] ") print(...)
+end
 
 function mingeban.utils.checkParam(param, typ, num, fnName)
 	assert(type(param) == typ, "bad argument #" .. tostring(num) .. " to '" .. fnName .. "' (" .. typ .. " expected, got " .. type(param) .. ")")
@@ -82,9 +92,8 @@ end
 
 -- From original mingeban, could be useful
 -- Written by Xaotic, optimized by Tenrys
-function mingeban.utils.findEntity(str, plyonly)
+function mingeban.utils.findEntity(str)
 	mingeban.utils.checkParam(str, "string", 1, "findEntity")
-	if plyonly == nil then plyonly = true end
 
 	local found = {}
 	str = str:Trim()
@@ -134,45 +143,53 @@ function mingeban.utils.findEntity(str, plyonly)
 	if str:StartWith("_") and str:len() > 1 then
 		local ent = Entity(tonumber(str:sub(2)))
 		if ent then
-			if plyonly and ent:IsPlayer() or not plyonly then
-				found[#found + 1] = ent
-			end
+			found[#found + 1] = ent
 		end
 	end
 
 	for _, ent in next, ents.GetAll() do
-		if not plyonly then
-			--[[ might be needed?
+		--[[ might be needed?
 
-			local nonum = str:gsub("(%d+)", "")
-			if nonum == "" then
-				nonum = nil
-			end
+		local nonum = str:gsub("(%d+)", "")
+		if nonum == "" then
+			nonum = nil
+		end
 
-			]]
-			if ent:GetClass():match(str) then
-				found[#found + 1] = ent
-			end
+		]]
+		if ent:GetClass():match(str) then
+			found[#found + 1] = ent
+		end
 
-			if ent:GetName():match(str) then
-				found[#found + 1] = ent
-			end
+		if ent:GetName():match(str) then
+			found[#found + 1] = ent
+		end
 
-			if ent.GetModel and isstring(ent:GetModel()) and ent:GetModel():match(str) then
-				found[#found + 1] = ent
-			end
+		if ent.GetModel and isstring(ent:GetModel()) and ent:GetModel():match(str) then
+			found[#found + 1] = ent
 		end
 	end
 
-	local found_nodupes = {}
+	local foundNodupes = {}
 
 	for _, ply in next, found do
-		if not table.HasValue(found_nodupes, ply) then
-			found_nodupes[#found_nodupes + 1] = ply
+		if not table.HasValue(foundNodupes, ply) then
+			foundNodupes[#foundNodupes + 1] = ply
 		end
 	end
 
-	return found_nodupes
+	return foundNodupes
+end
+
+function mingeban.utils.findPlayer(str)
+	local results = mingeban.utils.findEntity(str)
+	local i = 0
+	for k, ent in next, results do
+		if not ent:IsPlayer() then
+			table.remove(results, k - i)
+			i = i + 1
+		end
+	end
+	return results
 end
 
 function mingeban.utils.accessorFunc(tbl, keyName, key, noAddSet)

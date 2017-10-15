@@ -55,7 +55,7 @@ util.AddNetworkString("mingeban-cmderror")
 local function cmdError(ply, reason)
 	-- PrintTable(debug.getinfo(2))
 	if not IsValid(ply) then
-		MsgC(Color(255, 127, 127), "[mingeban] ") MsgC(Color(255, 255, 255), reason .. "\n")
+		mingeban.utils.print(mingeban.colors.Red, reason)
 		return
 	end
 
@@ -125,16 +125,16 @@ function mingeban.RunCommand(name, caller, line)
 					funcArg = tobool(arg:Trim():lower())
 
 				elseif argData.type == ARGTYPE_PLAYER then
-					funcArg = mingeban.utils.findEntity(arg)[1]
+					funcArg = mingeban.utils.findPlayer(arg)[1]
 
 				elseif argData.type == ARGTYPE_PLAYERS then
-					funcArg = mingeban.utils.findEntity(arg)
+					funcArg = mingeban.utils.findPlayer(arg)
 
 				elseif argData.type == ARGTYPE_ENTITY then
-					funcArg = mingeban.utils.findEntity(arg, false)[1]
+					funcArg = mingeban.utils.findEntity(arg)[1]
 
 				elseif argData.type == ARGTYPE_ENTITIES then
-					funcArg = mingeban.utils.findEntity(arg, false)
+					funcArg = mingeban.utils.findEntity(arg)
 
 				end
 
@@ -196,12 +196,13 @@ function mingeban.RunCommand(name, caller, line)
 
 	local ok2, err2
 	local ok, err = pcall(function()
-		ok2, err2 = cmd.callback(caller, line, unpack(args or {}))
+		ok2, err2 = cmd.callback(IsValid(caller) and caller or "CONSOLE", line, unpack(args or {}))
 	end)
 
 	mingeban.CurrentPlayer = nil
 
 	if not ok then
+		ErrorNoHalt(err .. "\n")
 		cmdError(caller, "command lua error: " .. err)
 		return false
 	elseif ok2 == false then
@@ -232,14 +233,22 @@ testargsCmd:AddArgument(ARGTYPE_VARARGS)
 
 util.AddNetworkString("mingeban-getcommands")
 
-net.Receive("mingeban-getcommands", function(_, ply)
+function mingeban.NetworkCommands(ply)
 	net.Start("mingeban-getcommands")
 		local commands = table.Copy(mingeban.commands)
 		for name, _ in next, commands do
 			commands[name].callback = nil
 		end
 		net.WriteTable(commands)
-	net.Send(ply)
+	if ply then
+		net.Send(ply)
+	else
+		net.Broadcast()
+	end
+end
+
+hook.Add("PlayerInitialSpawn", "mingeban-commands", function(ply)
+	mingeban.NetworkCommands(ply)
 end)
 
 -- commands running by chat or console
@@ -278,6 +287,7 @@ hook.Add("PlayerSay", "mingeban-commands", function(ply, txt)
 	end
 end)
 
--- networking
--- to be done (lul)
+if istable(GAMEMODE) then
+	mingeban.NetworkCommands()
+end
 

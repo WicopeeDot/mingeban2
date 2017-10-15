@@ -1,23 +1,11 @@
 
 local Rank = mingeban.objects.Rank
 
-local function askRanks()
-	net.Start("mingeban-getranks")
-	net.SendToServer()
-
-	hook.Remove("Think", "mingeban-requestranks")
-end
-
 net.Receive("mingeban-getranks", function()
 	local ranks
 	local succ = pcall(function()
 		ranks = net.ReadTable()
 	end)
-
-	if not istable(ranks) then
-		askRanks()
-		return
-	end
 
 	local users = net.ReadTable()
 
@@ -28,9 +16,4 @@ net.Receive("mingeban-getranks", function()
 	mingeban.ranks = ranks
 	mingeban.users = users
 end)
-
-if istable(GAMEMODE) then
-	askRanks()
-end
-hook.Add("Think", "mingeban-requestranks", askRanks)
 
