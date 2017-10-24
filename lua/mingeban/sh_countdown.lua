@@ -140,8 +140,9 @@ elseif CLIENT then
 
 		-- text setup
 		surface.SetFont("mingeban-countdown")
-		local txt = string.format("%.2d:%.2d", remaining / 60, remaining % 60)
-		if last ~= txt then -- everytime the time changes...
+		local txt = string.format("%.2d:%06.3f", remaining / 60, math.Round(remaining, 3) % 60)
+		local sec = math.ceil(remaining)
+		if last ~= sec then -- everytime the time changes...
 			if last then -- don't play a sound the first time we set the variable
 				if remaining < 5 and remaining > 1 then
 					-- countdown sound
@@ -155,7 +156,7 @@ elseif CLIENT then
 					end
 				end
 			end
-			last = txt
+			last = sec
 		end
 		if cd.text:Trim() ~= "" then
 			txt = txt .. " (" .. cd.text .. ")"
