@@ -30,13 +30,18 @@ if SERVER then
 		mingeban.LastCountdown = text:Trim() ~= "" and text or nil
 	end
 
+	function mingeban.IsCountdownActive()
+		if not hook.GetTable().Think then return false end
+		return hook.GetTable().Think["mingeban-countdown"] and true or false
+	end
+
 	function mingeban.AbortCountdown()
 		net.Start("mingeban-countdown")
 			net.WriteUInt(0, 16)
 			net.WriteString("")
 		net.Broadcast()
 
-		if hook.GetTable().Think["mingeban-countdown"] then
+		if mingeban.IsCountdownActive() then
 			hook.Remove("Think", "mingeban-countdown")
 		end
 	end
