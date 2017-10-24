@@ -14,5 +14,7 @@ hook.Add("Initialize", "mingeban-nukedefault", function()
 	hook.Remove("Initialize", "mingeban-nukedefault")
 end)
 
+hook.Run("MingebanInitialized")
+
 MsgC(Color(127, 255, 127), "[mingeban] ") MsgC(Color(255, 255, 255), "Server side loaded\n")
 

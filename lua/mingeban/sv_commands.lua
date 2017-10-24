@@ -33,6 +33,7 @@ function mingeban.CreateCommand(name, callback)
 		if func then
 			func(nil, player.GetAll())
 		end
+
 		return cmd
 	else
 		checkParam(name, "string", 1, "CreateCommand")

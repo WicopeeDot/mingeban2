@@ -41,9 +41,11 @@ if SERVER then
 		end
 	end
 
-	local abort = mingeban.CreateCommand("abort", function(caller)
-		mingeban.AbortCountdown()
-		mingeban.utils.print(mingeban.colors.Cyan, tostring(caller) .. " aborted countdown" .. (mingeban.LastCountdown and " \"" .. mingeban.LastCountdown .. "\"" or ""))
+	hook.Add("MingebanInitialized", "mingeban-countdown", function()
+		local abort = mingeban.CreateCommand("abort", function(caller)
+			mingeban.AbortCountdown()
+			mingeban.utils.print(mingeban.colors.Cyan, tostring(caller) .. " aborted countdown" .. (mingeban.LastCountdown and " \"" .. mingeban.LastCountdown .. "\"" or ""))
+		end)
 	end)
 elseif CLIENT then
 	-- setup
