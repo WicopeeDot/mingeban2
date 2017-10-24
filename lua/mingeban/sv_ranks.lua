@@ -126,6 +126,4 @@ hook.Add("PlayerInitialSpawn", "mingeban-ranks", function(ply)
 	mingeban.NetworkRanks(ply)
 end)
 
-hook.Add("Initialize", "mingeban-initranks", function()
-	mingeban.InitializeRanks()
-end)
+mingeban.InitializeRanks()
