@@ -1,7 +1,7 @@
 
-local checkParam = mingeban.utils.checkParam
-
 if SERVER then
+	local checkParam = mingeban.utils.checkParam
+
 	util.AddNetworkString("mingeban-countdown")
 
 	function mingeban.Countdown(time, func, text)
