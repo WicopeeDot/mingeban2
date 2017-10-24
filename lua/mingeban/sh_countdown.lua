@@ -144,10 +144,10 @@ elseif CLIENT then
 		local sec = math.ceil(remaining)
 		if last ~= sec then -- everytime the time changes...
 			if last then -- don't play a sound the first time we set the variable
-				if remaining < 5 and remaining > 1 then
+				if remaining < 5 and remaining > 0 then
 					-- countdown sound
 					play(75, 0.66, "buttons/blip1.wav")
-				elseif remaining < 1 then
+				elseif remaining <= 0 then
 					-- end sound
 					if IsMounted("portal2") then
 						play(100, 0.66, "buttons/button_synth_negative_02.wav")
