@@ -55,6 +55,7 @@ if SERVER then
 elseif CLIENT then
 	-- setup
 	mingeban.Countdown = {}
+	mingeban.Countdown.shakeStarted = false
 	mingeban.Countdown.alpha = 0
 
 	-- receive the countdown
@@ -73,6 +74,7 @@ elseif CLIENT then
 		mingeban.Countdown.time = time
 		mingeban.Countdown.start = RealTime() + time
 		mingeban.Countdown.text = text
+		mingeban.Countdown.shakeStarted = false
 
 		-- start sound
 		if time > 0 then
@@ -83,7 +85,7 @@ elseif CLIENT then
 			end
 		end
 	end)
-
+	
 	-- show it
 	surface.CreateFont("mingeban-countdown", {
 		font = "Roboto Cn",
@@ -154,6 +156,10 @@ elseif CLIENT then
 				if remaining < 5 and remaining > 0 then
 					-- countdown sound
 					play(75, 0.66, "buttons/blip1.wav")
+					if(mingeban.Countdown.shakeStarted == false) then
+						util.ScreenShake( LocalPlayer():GetPos(), 7.5, 5, 10, 30) 
+						mingeban.Countdown.shakeStarted = true
+					end
 				elseif remaining <= 0 then
 					-- end sound
 					if IsMounted("portal2") then
@@ -174,11 +180,11 @@ elseif CLIENT then
 		surface.SetTextPos(ScrW() * 0.5 - txtW * 0.5 + 2, y - 8 - txtH + 2)
 		surface.SetTextColor(Color(0, 0, 0, 192))
 		surface.DrawText(txt)
-
+		
+		
 		-- text
 		surface.SetTextPos(ScrW() * 0.5 - txtW * 0.5, y - 8 - txtH)
 		surface.SetTextColor(Color(220, 220, 255, 192))
 		surface.DrawText(txt)
 	end)
 end
-
